@@ -21,7 +21,7 @@ double sum_mixed_recursive(int i, int n, double x, double current_F)
     int next_i = i + 1;
     double next_F = -current_F * x * (3.0 * next_i - 5.0) / (3.0 * next_i - 3.0);
 
-    // Робимо рекурсивний виклик, передаючи туди щойно обчислений next_F
+    // рекурсивний виклик, передаючи туди щойно обчислений next_F
     double remaining_sum = sum_mixed_recursive(next_i, n, x, next_F);
 
     // Підйом: додаємо поточний член до суми, яку повернув наступний виклик

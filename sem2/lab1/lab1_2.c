@@ -1,39 +1,30 @@
 #include <stdio.h>
 #include <math.h>
 
-// Створюємо структуру для зберігання члена ряду та суми
-typedef struct
-{
-    double F;
-    double sum;
-} SeriesData;
-
 /*
- * Рекурсивна функція для обчислення на рекурсивному поверненні (зі struct).
+ * Рекурсивна функція для обчислення на рекурсивному поверненні.
  * i - поточний крок
  * x - аргумент
+ * current_F - вказівник для передачі значення поточного члена ряду "нагору"
  */
-SeriesData sum_ascent_recursive(int i, double x)
+double sum_ascent_recursive(int i, double x, double *current_F)
 {
-    SeriesData data;
-
     // Базовий випадок: доходимо до початку ряду (i = 1)
     if (i == 1)
     {
-        data.F = 1.0;
-        data.sum = 1.0;
-        return data;
+        *current_F = 1.0; // F_1 через вказівник
+        return 1.0;       // сума першого члена
     }
 
-    // Спуск: Спочатку робимо рекурсивний виклик для попереднього кроку (i - 1)
-    data = sum_ascent_recursive(i - 1, x);
+    // Спуск: рекурсивний виклик для попереднього кроку (i - 1).
+    // Коли ця функція завершиться, у *current_F буде записано значення F_{i-1}.
+    double prev_sum = sum_ascent_recursive(i - 1, x, current_F);
 
-    // Підйом: Тепер data.F містить значення F_{i-1}.
-    // Обчислюємо поточний F_i та додаємо його до загальної суми.
-    data.F = -data.F * x * (3.0 * i - 5.0) / (3.0 * i - 3.0);
-    data.sum += data.F;
+    // Підйом: обчислюємо поточний F_i, оновлюючи значення за вказівником
+    *current_F = -(*current_F) * x * (3.0 * i - 5.0) / (3.0 * i - 3.0);
 
-    return data;
+    // Повертаємо загальну суму (сума попередніх + поточний член)
+    return prev_sum + *current_F;
 }
 
 /*
@@ -46,10 +37,10 @@ double calculate_sum_ascent(int n, double x)
         return 0.0;
     }
 
-    // Отримуємо результат у вигляді структури
-    SeriesData result = sum_ascent_recursive(n, x);
+    double f_val = 0.0; // Змінна, куди рекурсія записує поточний член ряду
 
-    return result.sum; // Повертаємо лише потрібну нам суму
+    // Викликаємо рекурсію, передаючи адресу змінної f_val
+    return sum_ascent_recursive(n, x, &f_val);
 }
 
 int main()

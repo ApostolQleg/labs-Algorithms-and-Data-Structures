@@ -20,7 +20,7 @@ double sum_descent_recursive(int i, int n, double x, double current_F, double cu
     int next_i = i + 1;
     double next_F = -current_F * x * (3.0 * next_i - 5.0) / (3.0 * next_i - 3.0);
 
-    // Робимо рекурсивний виклик для наступного кроку, оновлюючи поточний член та суму
+    // рекурсивний виклик для наступного кроку, оновлюючи поточний член та суму
     return sum_descent_recursive(next_i, n, x, next_F, current_sum + next_F);
 }
 
