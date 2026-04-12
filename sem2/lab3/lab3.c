@@ -5,10 +5,9 @@
 #include <windows.h>
 
 #define PI 3.14159265358979323846
-
-#define N_VERTICES 10
 #define SEED 5400
-#define K_COEFF 0.75
+#define K 0.75
+#define N 10
 
 int **global_A_dir = NULL;
 int **global_A_undir = NULL;
@@ -39,12 +38,12 @@ void destroy_matrix(int **matrix, int n)
     free(matrix);
 }
 
-double randm()
+double random()
 {
     return ((double)rand() / RAND_MAX) * 2.0;
 }
 
-int mulmr(double value, double k)
+int calculate_edge(double value, double k)
 {
     double result = value * k;
     if (result >= 1.0)
@@ -62,8 +61,8 @@ void generate_directed_matrix(int **matrix, int n, int seed, double k)
     {
         for (int j = 0; j < n; j++)
         {
-            double T = randm();
-            matrix[i][j] = mulmr(T, k);
+            double T = random();
+            matrix[i][j] = calculate_edge(T, k);
         }
     }
 }
@@ -105,11 +104,11 @@ void draw_graph(HDC hdc, RECT client_rect)
 
     int **current_matrix = show_directed ? global_A_dir : global_A_undir;
 
-    POINT nodes[N_VERTICES];
+    POINT nodes[N];
 
-    for (int i = 0; i < N_VERTICES; i++)
+    for (int i = 0; i < N; i++)
     {
-        double angle = 2.0 * PI * i / N_VERTICES;
+        double angle = 2.0 * PI * i / N;
         nodes[i].x = cx + (int)(R * cos(angle));
         nodes[i].y = cy + (int)(R * sin(angle));
     }
@@ -117,9 +116,9 @@ void draw_graph(HDC hdc, RECT client_rect)
     HPEN edge_pen = CreatePen(PS_SOLID, 1, RGB(100, 100, 100));
     HPEN old_pen = (HPEN)SelectObject(hdc, edge_pen);
 
-    for (int i = 0; i < N_VERTICES; i++)
+    for (int i = 0; i < N; i++)
     {
-        for (int j = 0; j < N_VERTICES; j++)
+        for (int j = 0; j < N; j++)
         {
             if (current_matrix[i][j] == 1)
             {
@@ -130,8 +129,8 @@ void draw_graph(HDC hdc, RECT client_rect)
                 {
                     double angle = atan2((double)(nodes[j].y - nodes[i].y), (double)(nodes[j].x - nodes[i].x));
 
-                    int target_x = nodes[j].x - (int)(22 * cos(angle));
-                    int target_y = nodes[j].y - (int)(22 * sin(angle));
+                    int target_x = nodes[j].x - (int)((r_node + 2) * cos(angle));
+                    int target_y = nodes[j].y - (int)((r_node + 2) * sin(angle));
 
                     int arrow_len = 12;
                     double arrow_angle = PI / 6;
@@ -163,7 +162,7 @@ void draw_graph(HDC hdc, RECT client_rect)
     SelectObject(hdc, node_brush);
     SetBkMode(hdc, TRANSPARENT);
 
-    for (int i = 0; i < N_VERTICES; i++)
+    for (int i = 0; i < N; i++)
     {
         Ellipse(hdc, nodes[i].x - r_node, nodes[i].y - r_node, nodes[i].x + r_node, nodes[i].y + r_node);
 
@@ -215,19 +214,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
-    global_A_dir = create_matrix(N_VERTICES);
-    global_A_undir = create_matrix(N_VERTICES);
+    global_A_dir = create_matrix(N);
+    global_A_undir = create_matrix(N);
 
-    generate_directed_matrix(global_A_dir, N_VERTICES, SEED, K_COEFF);
-    generate_undirected_matrix(global_A_dir, global_A_undir, N_VERTICES);
+    generate_directed_matrix(global_A_dir, N, SEED, K);
+    generate_undirected_matrix(global_A_dir, global_A_undir, N);
 
     printf("Graph properties:\n");
-    printf("Vertices (n) = %d\n", N_VERTICES);
+    printf("Vertices (n) = %d\n", N);
     printf("Seed = %d\n", SEED);
-    printf("k = %.2f\n", K_COEFF);
+    printf("k = %.2f\n", K);
 
-    print_matrix(global_A_dir, N_VERTICES, "Directed Graph Adjacency Matrix");
-    print_matrix(global_A_undir, N_VERTICES, "Undirected Graph Adjacency Matrix");
+    print_matrix(global_A_dir, N, "Directed Graph Matrix");
+    print_matrix(global_A_undir, N, "Undirected Graph Matrix");
 
     const char CLASS_NAME[] = "GraphWindow";
 
@@ -252,8 +251,8 @@ int main()
 
     ShowWindow(hwnd, SW_SHOWDEFAULT);
 
-    printf("\nGraphical window opened. Press SPACE in the window to toggle directed/undirected graph.\n");
-    printf("Close the window to exit the program.\n");
+    printf("\nGraphical window opened.\n");
+    printf("\nClose the window to exit the program.\n");
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
@@ -262,8 +261,8 @@ int main()
         DispatchMessage(&msg);
     }
 
-    destroy_matrix(global_A_dir, N_VERTICES);
-    destroy_matrix(global_A_undir, N_VERTICES);
+    destroy_matrix(global_A_dir, N);
+    destroy_matrix(global_A_undir, N);
 
     return 0;
 }
