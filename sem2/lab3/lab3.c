@@ -5,9 +5,14 @@
 #include <windows.h>
 
 #define PI 3.14159265358979323846
-#define SEED 5400
-#define K 0.75
-#define N 10
+
+#define N1 5
+#define N2 4
+#define N3 0
+#define N4 4
+#define SEED ((N1 * 1000) + (N2 * 100) + (N3 * 10) + N4)
+#define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
+#define N (10 + N3)
 
 int **global_A_dir = NULL;
 int **global_A_undir = NULL;
@@ -15,14 +20,10 @@ bool show_directed = true;
 
 int **create_matrix(int n)
 {
-    int **matrix = (int **)malloc(n * sizeof(int *));
+    int **matrix = (int **)calloc(n, sizeof(int *));
     for (int i = 0; i < n; i++)
     {
-        matrix[i] = (int *)malloc(n * sizeof(int));
-        for (int j = 0; j < n; j++)
-        {
-            matrix[i][j] = 0;
-        }
+        matrix[i] = (int *)calloc(n, sizeof(int));
     }
     return matrix;
 }
@@ -31,6 +32,7 @@ void destroy_matrix(int **matrix, int n)
 {
     if (matrix == NULL)
         return;
+
     for (int i = 0; i < n; i++)
     {
         free(matrix[i]);
@@ -43,7 +45,7 @@ double random()
     return ((double)rand() / RAND_MAX) * 2.0;
 }
 
-int calculate_edge(double value, double k)
+int mulmr(double value, double k)
 {
     double result = value * k;
     if (result >= 1.0)
@@ -53,16 +55,14 @@ int calculate_edge(double value, double k)
     return 0;
 }
 
-void generate_directed_matrix(int **matrix, int n, int seed, double k)
+void generate_directed_matrix(int **matrix, int n, double k)
 {
-    srand(seed);
-
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
             double T = random();
-            matrix[i][j] = calculate_edge(T, k);
+            matrix[i][j] = mulmr(T, k);
         }
     }
 }
@@ -75,8 +75,7 @@ void generate_undirected_matrix(int **A_dir, int **A_undir, int n)
         {
             if (A_dir[i][j] == 1)
             {
-                A_undir[i][j] = 1;
-                A_undir[j][i] = 1;
+                A_undir[i][j] = A_undir[j][i] = 1;
             }
         }
     }
@@ -217,7 +216,9 @@ int main()
     global_A_dir = create_matrix(N);
     global_A_undir = create_matrix(N);
 
-    generate_directed_matrix(global_A_dir, N, SEED, K);
+    srand(SEED);
+    
+    generate_directed_matrix(global_A_dir, N, K);
     generate_undirected_matrix(global_A_dir, global_A_undir, N);
 
     printf("Graph properties:\n");
