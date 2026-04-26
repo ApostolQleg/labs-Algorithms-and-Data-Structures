@@ -94,6 +94,32 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
+void draw_arrow(HDC hdc, POINT start, POINT end, int r_node)
+{
+    double angle = atan2((double)(end.y - start.y), (double)(end.x - start.x));
+
+    int target_x = end.x - (int)((r_node + 2) * cos(angle));
+    int target_y = end.y - (int)((r_node + 2) * sin(angle));
+
+    int arrow_len = 12;
+    double arrow_angle = PI / 6;
+
+    POINT pts[3];
+    pts[0].x = target_x;
+    pts[0].y = target_y;
+    pts[1].x = target_x - (int)(arrow_len * cos(angle - arrow_angle));
+    pts[1].y = target_y - (int)(arrow_len * sin(angle - arrow_angle));
+    pts[2].x = target_x - (int)(arrow_len * cos(angle + arrow_angle));
+    pts[2].y = target_y - (int)(arrow_len * sin(angle + arrow_angle));
+
+    HBRUSH arrow_brush = CreateSolidBrush(RGB(150, 150, 150));
+    HBRUSH old_brush = (HBRUSH)SelectObject(hdc, arrow_brush);
+    Polygon(hdc, pts, 3);
+
+    SelectObject(hdc, old_brush);
+    DeleteObject(arrow_brush);
+}
+
 void draw_graph(HDC hdc, RECT client_rect)
 {
     int cx = (client_rect.right - client_rect.left) / 2;
@@ -126,28 +152,7 @@ void draw_graph(HDC hdc, RECT client_rect)
 
                 if (show_directed && i != j)
                 {
-                    double angle = atan2((double)(nodes[j].y - nodes[i].y), (double)(nodes[j].x - nodes[i].x));
-
-                    int target_x = nodes[j].x - (int)((r_node + 2) * cos(angle));
-                    int target_y = nodes[j].y - (int)((r_node + 2) * sin(angle));
-
-                    int arrow_len = 12;
-                    double arrow_angle = PI / 6;
-
-                    POINT pts[3];
-                    pts[0].x = target_x;
-                    pts[0].y = target_y;
-                    pts[1].x = target_x - (int)(arrow_len * cos(angle - arrow_angle));
-                    pts[1].y = target_y - (int)(arrow_len * sin(angle - arrow_angle));
-                    pts[2].x = target_x - (int)(arrow_len * cos(angle + arrow_angle));
-                    pts[2].y = target_y - (int)(arrow_len * sin(angle + arrow_angle));
-
-                    HBRUSH arrow_brush = CreateSolidBrush(RGB(150, 150, 150));
-                    HBRUSH old_brush = (HBRUSH)SelectObject(hdc, arrow_brush);
-                    Polygon(hdc, pts, 3);
-
-                    SelectObject(hdc, old_brush);
-                    DeleteObject(arrow_brush);
+                    draw_arrow(hdc, nodes[i], nodes[j], r_node);
                 }
             }
         }
@@ -217,7 +222,7 @@ int main()
     global_A_undir = create_matrix(N);
 
     srand(SEED);
-    
+
     generate_directed_matrix(global_A_dir, N, K);
     generate_undirected_matrix(global_A_dir, global_A_undir, N);
 
