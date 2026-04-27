@@ -12,10 +12,6 @@
 #define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
 #define N (10 + N3)
 
-int **global_A_dir = NULL;
-int **global_A_undir = NULL;
-bool show_directed = true;
-
 int **create_matrix(int n)
 {
     int **matrix = (int **)calloc(n, sizeof(int *));
@@ -112,15 +108,15 @@ void draw_arrow(Vector2 start, Vector2 end, float r_node)
 
 int main()
 {
-    global_A_dir = create_matrix(N);
-    global_A_undir = create_matrix(N);
+    int **A_dir = create_matrix(N);
+    int **A_undir = create_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(global_A_dir, N, K);
-    generate_undirected_matrix(global_A_dir, global_A_undir, N);
+    generate_directed_matrix(A_dir, N, K);
+    generate_undirected_matrix(A_dir, A_undir, N);
 
-    print_matrix(global_A_dir, N, "Directed Graph Matrix");
-    print_matrix(global_A_undir, N, "Undirected Graph Matrix");
+    print_matrix(A_dir, N, "Directed Graph Matrix");
+    print_matrix(A_undir, N, "Undirected Graph Matrix");
 
     const int screenWidth = 1600;
     const int screenHeight = 900;
@@ -150,7 +146,7 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        int **current_matrix = show_directed ? global_A_dir : global_A_undir;
+        int **current_matrix = show_directed ? A_dir : A_undir;
 
         for (int i = 0; i < N; i++)
         {
@@ -192,8 +188,8 @@ int main()
     }
 
     CloseWindow();
-    destroy_matrix(global_A_dir, N);
-    destroy_matrix(global_A_undir, N);
+    destroy_matrix(A_dir, N);
+    destroy_matrix(A_undir, N);
 
     return 0;
 }
