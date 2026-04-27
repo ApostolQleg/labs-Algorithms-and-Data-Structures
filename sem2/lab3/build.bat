@@ -1,0 +1,1 @@
+clang lab3.c -o lab3.exe -I C:\Study\C\libs\raylib\include -L C:\Study\C\libs\raylib\lib -lraylib -lgdi32 -lwinmm && .\lab3.exe
