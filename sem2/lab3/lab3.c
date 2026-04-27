@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <windows.h>
-
-#define PI 3.14159265358979323846
+#include "raylib.h"
 
 #define N1 5
 #define N2 4
@@ -94,126 +92,22 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
-void draw_arrow(HDC hdc, POINT start, POINT end, int r_node)
+void draw_arrow(Vector2 start, Vector2 end, float r_node)
 {
-    double angle = atan2((double)(end.y - start.y), (double)(end.x - start.x));
+    float angle = atan2f(end.y - start.y, end.x - start.x);
 
-    int target_x = end.x - (int)((r_node + 2) * cos(angle));
-    int target_y = end.y - (int)((r_node + 2) * sin(angle));
+    float target_x = end.x - (r_node + 2) * cosf(angle);
+    float target_y = end.y - (r_node + 2) * sinf(angle);
 
-    int arrow_len = 12;
-    double arrow_angle = PI / 6;
+    float arrow_len = 15.0f;
+    float arrow_angle = PI / 6.0f;
 
-    POINT pts[3];
-    pts[0].x = target_x;
-    pts[0].y = target_y;
-    pts[1].x = target_x - (int)(arrow_len * cos(angle - arrow_angle));
-    pts[1].y = target_y - (int)(arrow_len * sin(angle - arrow_angle));
-    pts[2].x = target_x - (int)(arrow_len * cos(angle + arrow_angle));
-    pts[2].y = target_y - (int)(arrow_len * sin(angle + arrow_angle));
+    Vector2 v1 = {target_x, target_y};
+    Vector2 v2 = {target_x - arrow_len * cosf(angle - arrow_angle), target_y - arrow_len * sinf(angle - arrow_angle)};
+    Vector2 v3 = {target_x - arrow_len * cosf(angle + arrow_angle), target_y - arrow_len * sinf(angle + arrow_angle)};
 
-    HBRUSH arrow_brush = CreateSolidBrush(RGB(150, 150, 150));
-    HBRUSH old_brush = (HBRUSH)SelectObject(hdc, arrow_brush);
-    Polygon(hdc, pts, 3);
-
-    SelectObject(hdc, old_brush);
-    DeleteObject(arrow_brush);
-}
-
-void draw_graph(HDC hdc, RECT client_rect)
-{
-    int cx = (client_rect.right - client_rect.left) / 2;
-    int cy = (client_rect.bottom - client_rect.top) / 2;
-    int R = 200;
-    int r_node = 20;
-
-    int **current_matrix = show_directed ? global_A_dir : global_A_undir;
-
-    POINT nodes[N];
-
-    for (int i = 0; i < N; i++)
-    {
-        double angle = 2.0 * PI * i / N;
-        nodes[i].x = cx + (int)(R * cos(angle));
-        nodes[i].y = cy + (int)(R * sin(angle));
-    }
-
-    HPEN edge_pen = CreatePen(PS_SOLID, 1, RGB(100, 100, 100));
-    HPEN old_pen = (HPEN)SelectObject(hdc, edge_pen);
-
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < N; j++)
-        {
-            if (current_matrix[i][j] == 1)
-            {
-                MoveToEx(hdc, nodes[i].x, nodes[i].y, NULL);
-                LineTo(hdc, nodes[j].x, nodes[j].y);
-
-                if (show_directed && i != j)
-                {
-                    draw_arrow(hdc, nodes[i], nodes[j], r_node);
-                }
-            }
-        }
-    }
-    SelectObject(hdc, old_pen);
-    DeleteObject(edge_pen);
-
-    HPEN node_pen = CreatePen(PS_SOLID, 2, RGB(0, 0, 200));
-    HBRUSH node_brush = CreateSolidBrush(RGB(240, 240, 255));
-    SelectObject(hdc, node_pen);
-    SelectObject(hdc, node_brush);
-    SetBkMode(hdc, TRANSPARENT);
-
-    for (int i = 0; i < N; i++)
-    {
-        Ellipse(hdc, nodes[i].x - r_node, nodes[i].y - r_node, nodes[i].x + r_node, nodes[i].y + r_node);
-
-        char text[3];
-        sprintf(text, "%d", i);
-        TextOutA(hdc, nodes[i].x - 4, nodes[i].y - 8, text, strlen(text));
-    }
-
-    SelectObject(hdc, GetStockObject(BLACK_PEN));
-    SelectObject(hdc, GetStockObject(WHITE_BRUSH));
-    DeleteObject(node_pen);
-    DeleteObject(node_brush);
-
-    const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
-    TextOutA(hdc, 20, 20, title, strlen(title));
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
-        RECT rect;
-        GetClientRect(hwnd, &rect);
-        draw_graph(hdc, rect);
-        EndPaint(hwnd, &ps);
-        return 0;
-    }
-    case WM_KEYDOWN:
-    {
-        if (wParam == VK_SPACE)
-        {
-            show_directed = !show_directed;
-            InvalidateRect(hwnd, NULL, TRUE);
-        }
-        return 0;
-    }
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    DrawTriangle(v1, v2, v3, GRAY);
+    DrawTriangle(v1, v3, v2, GRAY);
 }
 
 int main()
@@ -222,51 +116,82 @@ int main()
     global_A_undir = create_matrix(N);
 
     srand(SEED);
-
     generate_directed_matrix(global_A_dir, N, K);
     generate_undirected_matrix(global_A_dir, global_A_undir, N);
-
-    printf("Graph properties:\n");
-    printf("Vertices (n) = %d\n", N);
-    printf("Seed = %d\n", SEED);
-    printf("k = %.2f\n", K);
 
     print_matrix(global_A_dir, N, "Directed Graph Matrix");
     print_matrix(global_A_undir, N, "Undirected Graph Matrix");
 
-    const char CLASS_NAME[] = "GraphWindow";
+    const int screenWidth = 1600;
+    const int screenHeight = 900;
+    InitWindow(screenWidth, screenHeight, "Lab 3 - Raylib Graph Representation");
+    SetTargetFPS(60);
 
-    WNDCLASS wc = {0};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = GetModuleHandle(NULL);
-    wc.lpszClassName = CLASS_NAME;
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    bool show_directed = true;
+    float R = 400.0f;
+    float r_node = 40.0f;
+    Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
 
-    RegisterClass(&wc);
-
-    HWND hwnd = CreateWindowEx(
-        0, CLASS_NAME, "Lab 3 - Graph Representation",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        NULL, NULL, wc.hInstance, NULL);
-
-    if (hwnd == NULL)
+    Vector2 nodes[N];
+    for (int i = 0; i < N; i++)
     {
-        printf("Error: Unable to create graphical window.\n");
-        return 0;
+        float angle = 2.0f * PI * i / N;
+        nodes[i].x = center.x + R * cosf(angle);
+        nodes[i].y = center.y + R * sinf(angle);
     }
 
-    ShowWindow(hwnd, SW_SHOWDEFAULT);
-
-    printf("\nGraphical window opened.\n");
-    printf("\nClose the window to exit the program.\n");
-
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (!WindowShouldClose())
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            show_directed = !show_directed;
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        int **current_matrix = show_directed ? global_A_dir : global_A_undir;
+
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                if (current_matrix[i][j] == 1)
+                {
+                    DrawLineV(nodes[i], nodes[j], GRAY);
+
+                    if (show_directed && i != j)
+                    {
+                        draw_arrow(nodes[i], nodes[j], r_node);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < N; i++)
+        {
+            DrawCircleV(nodes[i], r_node, LIGHTGRAY);
+            DrawCircleLines(nodes[i].x, nodes[i].y, r_node, DARKGRAY);
+
+            char text[3];
+            sprintf(text, "%d", i);
+
+            int fontSize = 50;
+            int textWidth = MeasureText(text, fontSize);
+
+            int textX = nodes[i].x - (textWidth / 2);
+            int textY = nodes[i].y - (fontSize / 2);
+
+            DrawText(text, textX, textY, fontSize, BLACK);
+        }
+
+        const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
+        DrawText(title, 20, 20, 20, DARKGRAY);
+
+        EndDrawing();
     }
 
+    CloseWindow();
     destroy_matrix(global_A_dir, N);
     destroy_matrix(global_A_undir, N);
 
