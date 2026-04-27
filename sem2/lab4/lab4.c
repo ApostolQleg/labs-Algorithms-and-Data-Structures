@@ -9,7 +9,8 @@
 #define N3 0
 #define N4 4
 #define SEED ((N1 * 1000) + (N2 * 100) + (N3 * 10) + N4)
-#define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
+#define K1 (1 - (N3 * 0.01) - (N4 * 0.001) - 0.3)
+#define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
 
 int **create_matrix(int n)
@@ -112,7 +113,7 @@ int main()
     int **A_undir = create_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
+    generate_directed_matrix(A_dir, N, K1);
     generate_undirected_matrix(A_dir, A_undir, N);
 
     print_matrix(A_dir, N, "Directed Graph Matrix");
