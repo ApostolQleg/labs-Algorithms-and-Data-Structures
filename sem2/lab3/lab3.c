@@ -12,6 +12,75 @@
 #define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
 #define N (10 + N3)
 
+int **create_matrix(int n);
+void destroy_matrix(int **matrix, int n);
+double randm();
+int mulmr(double value, double k);
+void generate_directed_matrix(int **matrix, int n, double k);
+void generate_undirected_matrix(int **A_dir, int **A_undir, int n);
+void print_matrix(int **matrix, int n, const char *title);
+float calc_arrow_angle(Vector2 start, Vector2 end);
+Vector2 calc_arrow_target(Vector2 end, float r_node, float angle);
+void draw_arrow(Vector2 target, float angle);
+void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed);
+
+int main()
+{
+    int **A_dir = create_matrix(N);
+    int **A_undir = create_matrix(N);
+
+    srand(SEED);
+    generate_directed_matrix(A_dir, N, K);
+    generate_undirected_matrix(A_dir, A_undir, N);
+
+    print_matrix(A_dir, N, "Directed Graph Matrix");
+    print_matrix(A_undir, N, "Undirected Graph Matrix");
+
+    SetTraceLogLevel(LOG_NONE);
+    const int screenWidth = 1600;
+    const int screenHeight = 900;
+    InitWindow(screenWidth, screenHeight, "Lab 3 - Raylib Graph Representation");
+    SetTargetFPS(60);
+
+    bool show_directed = true;
+    float R = 300.0f;
+    float r_node = 40.0f;
+    Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+
+    Vector2 nodes[N];
+    for (int i = 0; i < N; i++)
+    {
+        float angle = 2.0f * PI * i / N;
+        nodes[i].x = center.x + R * cosf(angle);
+        nodes[i].y = center.y + R * sinf(angle);
+    }
+
+    while (!WindowShouldClose())
+    {
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            show_directed = !show_directed;
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        int **current_matrix = show_directed ? A_dir : A_undir;
+        draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
+
+        const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
+        DrawText(title, 20, 20, 20, DARKGRAY);
+
+        EndDrawing();
+    }
+
+    CloseWindow();
+    destroy_matrix(A_dir, N);
+    destroy_matrix(A_undir, N);
+
+    return 0;
+}
+
 int **create_matrix(int n)
 {
     int **matrix = (int **)calloc(n, sizeof(int *));
@@ -34,7 +103,7 @@ void destroy_matrix(int **matrix, int n)
     free(matrix);
 }
 
-double random()
+double randm()
 {
     return ((double)rand() / RAND_MAX) * 2.0;
 }
@@ -50,7 +119,7 @@ void generate_directed_matrix(int **matrix, int n, double k)
     {
         for (int j = 0; j < n; j++)
         {
-            double T = random();
+            double T = randm();
             matrix[i][j] = mulmr(T, k);
         }
     }
@@ -83,12 +152,12 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
-float calc_angle(Vector2 start, Vector2 end)
+float calc_arrow_angle(Vector2 start, Vector2 end)
 {
     return atan2f(end.y - start.y, end.x - start.x);
 }
 
-Vector2 calc_target(Vector2 end, float r_node, float angle)
+Vector2 calc_arrow_target(Vector2 end, float r_node, float angle)
 {
     Vector2 target = {
         end.x - (r_node + 2) * cosf(angle),
@@ -185,61 +254,4 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
 
         DrawText(text, textX, textY, fontSize, BLACK);
     }
-}
-
-int main()
-{
-    int **A_dir = create_matrix(N);
-    int **A_undir = create_matrix(N);
-
-    srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
-    generate_undirected_matrix(A_dir, A_undir, N);
-
-    print_matrix(A_dir, N, "Directed Graph Matrix");
-    print_matrix(A_undir, N, "Undirected Graph Matrix");
-
-    SetTraceLogLevel(LOG_NONE);
-    const int screenWidth = 1600;
-    const int screenHeight = 900;
-    InitWindow(screenWidth, screenHeight, "Lab 3 - Raylib Graph Representation");
-    SetTargetFPS(60);
-
-    bool show_directed = true;
-    float R = 300.0f;
-    float r_node = 40.0f;
-    Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
-
-    Vector2 nodes[N];
-    for (int i = 0; i < N; i++)
-    {
-        float angle = 2.0f * PI * i / N;
-        nodes[i].x = center.x + R * cosf(angle);
-        nodes[i].y = center.y + R * sinf(angle);
-    }
-
-    while (!WindowShouldClose())
-    {
-        if (IsKeyPressed(KEY_SPACE))
-        {
-            show_directed = !show_directed;
-        }
-
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        int **current_matrix = show_directed ? A_dir : A_undir;
-        draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
-
-        const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
-        DrawText(title, 20, 20, 20, DARKGRAY);
-
-        EndDrawing();
-    }
-
-    CloseWindow();
-    destroy_matrix(A_dir, N);
-    destroy_matrix(A_undir, N);
-
-    return 0;
 }
