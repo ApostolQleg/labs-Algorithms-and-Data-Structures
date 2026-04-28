@@ -88,25 +88,50 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
-void draw_arrow(Vector2 start, Vector2 end, float r_node)
+float calc_angle(Vector2 start, Vector2 end)
 {
-    float angle = atan2f(end.y - start.y, end.x - start.x);
+    return atan2f(end.y - start.y, end.x - start.x);
+}
 
-    float target_x = end.x - (r_node + 2) * cosf(angle);
-    float target_y = end.y - (r_node + 2) * sinf(angle);
+Vector2 calc_target(Vector2 end, float r_node, float angle)
+{
+    Vector2 target = {
+        end.x - (r_node + 2) * cosf(angle),
+        end.y - (r_node + 2) * sinf(angle)};
+    return target;
+}
 
+Vector2 calc_circle_target(Vector2 center, float radius, float angle)
+{
+    Vector2 target = {
+        center.x + radius * cosf(angle),
+        center.y + radius * sinf(angle)};
+    return target;
+}
+
+float calc_circle_tangent(float angle)
+{
+    return angle + (PI / 2.0f);
+}
+
+void draw_arrow(Vector2 target, float angle)
+{
     float arrow_len = 15.0f;
     float arrow_angle = PI / 6.0f;
 
-    Vector2 v1 = {target_x, target_y};
-    Vector2 v2 = {target_x - arrow_len * cosf(angle - arrow_angle), target_y - arrow_len * sinf(angle - arrow_angle)};
-    Vector2 v3 = {target_x - arrow_len * cosf(angle + arrow_angle), target_y - arrow_len * sinf(angle + arrow_angle)};
+    Vector2 v1 = {target.x, target.y};
+    Vector2 v2 = {
+        target.x - arrow_len * cosf(angle - arrow_angle),
+        target.y - arrow_len * sinf(angle - arrow_angle)};
+    Vector2 v3 = {
+        target.x - arrow_len * cosf(angle + arrow_angle),
+        target.y - arrow_len * sinf(angle + arrow_angle)};
 
     DrawTriangle(v1, v2, v3, GRAY);
     DrawTriangle(v1, v3, v2, GRAY);
 }
 
-void draw_self_loop(Vector2 node, Vector2 center, float r_node)
+void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
 {
     float dx = node.x - center.x;
     float dy = node.y - center.y;
@@ -116,7 +141,7 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node)
     float dir_x = dx / length;
     float dir_y = dy / length;
 
-    float offset = r_node * 1.5;
+    float offset = r_node * 1.5f;
     float r_loop = r_node * 1.25f;
 
     Vector2 loop_center = {
@@ -125,31 +150,17 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node)
 
     DrawCircleLines(loop_center.x, loop_center.y, r_loop, GRAY);
 
-    float angle_to_node = atan2f(node.y - loop_center.y, node.x - loop_center.x);
+    if (show_arrow)
+    {
+        float angle_to_node = atan2f(node.y - loop_center.y, node.x - loop_center.x);
+        float intersect_angle = 0.7227f;
+        float alpha = angle_to_node - intersect_angle;
 
-    float intersect_angle = 0.7227f;
+        Vector2 target = calc_circle_target(loop_center, r_loop, alpha);
+        float angle = calc_circle_tangent(alpha);
 
-    float alpha = angle_to_node - intersect_angle;
-
-    float target_x = loop_center.x + r_loop * cosf(alpha);
-    float target_y = loop_center.y + r_loop * sinf(alpha);
-
-    float angle = alpha + (PI / 2.0f);
-
-    float arrow_len = 15.0f;
-    float arrow_angle = PI / 6.0f;
-
-    Vector2 v1 = {target_x, target_y};
-
-    Vector2 v2 = {
-        target_x - arrow_len * cosf(angle - arrow_angle),
-        target_y - arrow_len * sinf(angle - arrow_angle)};
-    Vector2 v3 = {
-        target_x - arrow_len * cosf(angle + arrow_angle),
-        target_y - arrow_len * sinf(angle + arrow_angle)};
-
-    DrawTriangle(v1, v2, v3, GRAY);
-    DrawTriangle(v1, v3, v2, GRAY);
+        draw_arrow(target, angle);
+    }
 }
 
 int main()
@@ -201,15 +212,20 @@ int main()
             {
                 if (current_matrix[i][j] == 1)
                 {
-                    DrawLineV(nodes[i], nodes[j], GRAY);
+                    if (i != j)
+                    {
+                        DrawLineV(nodes[i], nodes[j], GRAY);
 
-                    if (show_directed && i != j)
-                    {
-                        draw_arrow(nodes[i], nodes[j], r_node);
+                        if (show_directed)
+                        {
+                            float angle = calc_angle(nodes[i], nodes[j]);
+                            Vector2 target = calc_target(nodes[j], r_node, angle);
+                            draw_arrow(target, angle);
+                        }
                     }
-                    else if (i == j)
+                    else
                     {
-                        draw_self_loop(nodes[i], center, r_node);
+                        draw_self_loop(nodes[i], center, r_node, show_directed);
                     }
                 }
             }
