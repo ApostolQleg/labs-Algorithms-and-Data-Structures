@@ -41,12 +41,7 @@ double random()
 
 int mulmr(double value, double k)
 {
-    double result = value * k;
-    if (result >= 1.0)
-    {
-        return 1;
-    }
-    return 0;
+    return (value * k >= 1.0) ? 1 : 0;
 }
 
 void generate_directed_matrix(int **matrix, int n, double k)
@@ -101,19 +96,6 @@ Vector2 calc_target(Vector2 end, float r_node, float angle)
     return target;
 }
 
-Vector2 calc_circle_target(Vector2 center, float radius, float angle)
-{
-    Vector2 target = {
-        center.x + radius * cosf(angle),
-        center.y + radius * sinf(angle)};
-    return target;
-}
-
-float calc_circle_tangent(float angle)
-{
-    return angle + (PI / 2.0f);
-}
-
 void draw_arrow(Vector2 target, float angle)
 {
     float arrow_len = 15.0f;
@@ -135,31 +117,73 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
 {
     float dx = node.x - center.x;
     float dy = node.y - center.y;
-
     float length = sqrtf(dx * dx + dy * dy);
 
-    float dir_x = dx / length;
-    float dir_y = dy / length;
-
-    float offset = r_node * 1.5f;
-    float r_loop = r_node * 1.25f;
-
     Vector2 loop_center = {
-        node.x + dir_x * offset,
-        node.y + dir_y * offset};
+        node.x + (dx / length) * (r_node * 1.5f),
+        node.y + (dy / length) * (r_node * 1.5f)};
+
+    float r_loop = r_node * 1.25f;
 
     DrawCircleLines(loop_center.x, loop_center.y, r_loop, GRAY);
 
     if (show_arrow)
     {
-        float angle_to_node = atan2f(node.y - loop_center.y, node.x - loop_center.x);
-        float intersect_angle = 0.7227f;
-        float alpha = angle_to_node - intersect_angle;
+        float alpha = atan2f(node.y - loop_center.y, node.x - loop_center.x) - 0.7227f;
 
-        Vector2 target = calc_circle_target(loop_center, r_loop, alpha);
-        float angle = calc_circle_tangent(alpha);
+        Vector2 target = {
+            loop_center.x + r_loop * cosf(alpha),
+            loop_center.y + r_loop * sinf(alpha)};
+        float angle = alpha + (PI / 2.0f);
 
         draw_arrow(target, angle);
+    }
+}
+
+void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                if (i != j)
+                {
+                    DrawLineV(nodes[i], nodes[j], GRAY);
+
+                    if (is_directed)
+                    {
+                        float angle = atan2f(nodes[j].y - nodes[i].y, nodes[j].x - nodes[i].x);
+                        Vector2 target = {
+                            nodes[j].x - (r_node + 2) * cosf(angle),
+                            nodes[j].y - (r_node + 2) * sinf(angle)};
+                        draw_arrow(target, angle);
+                    }
+                }
+                else
+                {
+                    draw_self_loop(nodes[i], center, r_node, is_directed);
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        DrawCircleV(nodes[i], r_node, LIGHTGRAY);
+        DrawCircleLines(nodes[i].x, nodes[i].y, r_node, DARKGRAY);
+
+        char text[3];
+        sprintf(text, "%d", i);
+
+        int fontSize = 50;
+        int textWidth = MeasureText(text, fontSize);
+
+        int textX = nodes[i].x - (textWidth / 2);
+        int textY = nodes[i].y - (fontSize / 2);
+
+        DrawText(text, textX, textY, fontSize, BLACK);
     }
 }
 
@@ -205,48 +229,7 @@ int main()
         ClearBackground(RAYWHITE);
 
         int **current_matrix = show_directed ? A_dir : A_undir;
-
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                if (current_matrix[i][j] == 1)
-                {
-                    if (i != j)
-                    {
-                        DrawLineV(nodes[i], nodes[j], GRAY);
-
-                        if (show_directed)
-                        {
-                            float angle = calc_angle(nodes[i], nodes[j]);
-                            Vector2 target = calc_target(nodes[j], r_node, angle);
-                            draw_arrow(target, angle);
-                        }
-                    }
-                    else
-                    {
-                        draw_self_loop(nodes[i], center, r_node, show_directed);
-                    }
-                }
-            }
-        }
-
-        for (int i = 0; i < N; i++)
-        {
-            DrawCircleV(nodes[i], r_node, LIGHTGRAY);
-            DrawCircleLines(nodes[i].x, nodes[i].y, r_node, DARKGRAY);
-
-            char text[3];
-            sprintf(text, "%d", i);
-
-            int fontSize = 50;
-            int textWidth = MeasureText(text, fontSize);
-
-            int textX = nodes[i].x - (textWidth / 2);
-            int textY = nodes[i].y - (fontSize / 2);
-
-            DrawText(text, textX, textY, fontSize, BLACK);
-        }
+        draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
 
         const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
         DrawText(title, 20, 20, 20, DARKGRAY);
