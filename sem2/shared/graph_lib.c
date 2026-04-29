@@ -113,14 +113,23 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
 
     if (show_arrow)
     {
-        float alpha = atan2f(node.y - loop_center.y, node.x - loop_center.x) - LOOP_ARROW_OFFSET;
-        Vector2 target = {
-            loop_center.x + r_loop * cosf(alpha),
-            loop_center.y + r_loop * sinf(alpha)};
-        float angle = alpha + (PI / 2.0f);
-
         float arrow_length = r_node * 0.375f;
-        draw_arrow(target, angle, arrow_length);
+
+        float center_based_alpha = atan2f(node.y - loop_center.y, node.x - loop_center.x);
+
+        float alpha1 = center_based_alpha - LOOP_ARROW_OFFSET;
+        Vector2 target1 = {
+            loop_center.x + r_loop * cosf(alpha1),
+            loop_center.y + r_loop * sinf(alpha1)};
+        float angle1 = alpha1 + (PI / 2.0f);
+        draw_arrow(target1, angle1, arrow_length);
+
+        float alpha2 = center_based_alpha + LOOP_ARROW_OFFSET;
+        Vector2 target2 = {
+            loop_center.x + r_loop * cosf(alpha2),
+            loop_center.y + r_loop * sinf(alpha2)};
+        float angle2 = alpha2 - (PI / 2.0f);
+        draw_arrow(target2, angle2, arrow_length);
     }
 }
 
