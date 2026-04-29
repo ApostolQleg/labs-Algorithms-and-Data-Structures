@@ -14,6 +14,8 @@ int main()
     const int SCREEN_WIDTH = 1600;
     const int SCREEN_HEIGHT = 900;
     const int TEXT_SIZE = 20;
+    const float GRAPH_RADIUS = 300.0f;
+    const float NODE_RADIUS = 40.0f;
 
     int **A1_dir = create_matrix(N);
     int **A1_undir = create_matrix(N);
@@ -21,14 +23,14 @@ int main()
     int **A2_undir = create_matrix(N);
 
     srand(SEED);
-    A1_dir = generate_directed_matrix(A1_dir, N, K1);
-    A1_undir = generate_undirected_matrix(A1_dir, A1_undir, N);
+    generate_directed_matrix(A1_dir, N, K1);
+    generate_undirected_matrix(A1_dir, A1_undir, N);
 
     print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
     print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
 
-    A2_dir = generate_directed_matrix(A2_dir, N, K2);
-    A2_undir = generate_undirected_matrix(A2_dir, A2_undir, N);
+    generate_directed_matrix(A2_dir, N, K2);
+    generate_undirected_matrix(A2_dir, A2_undir, N);
 
     print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
@@ -51,23 +53,27 @@ int main()
         nodes[i].y = center.y + R * sinf(angle);
     }
 
+    bool is_dir = true;
+    const char *dir_text = "Directed";
+    const char *k_text = "K1";
+
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_SPACE))
         {
             curr = (curr + 1) % 4;
+
+            is_dir = (curr % 2 == 0);
+            dir_text = is_dir ? "Directed" : "Undirected";
+            k_text = curr < 2 ? "K1" : "K2";
         }
-
-        bool is_dir = (curr % 2 == 0);
-
-        const char *dir = is_dir ? "Directed" : "Undirected";
-        const char *k = curr < 2 ? "K1" : "K2";
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        draw_graph(show[curr], nodes, N, r_node, center, is_dir);
 
-        const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir, k);
+        draw_graph(show[curr], nodes, N, NODE_RADIUS, center, is_dir);
+
+        const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir_text, k_text);
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
 
         EndDrawing();

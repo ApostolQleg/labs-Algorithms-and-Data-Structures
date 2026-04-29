@@ -42,9 +42,8 @@ int mulmr(double value, double k)
     return (value * k >= 1.0) ? 1 : 0;
 }
 
-int **generate_directed_matrix(int **matrix, int n, double k)
+void generate_directed_matrix(int **A_dir, int n, double k)
 {
-    int **A_dir = matrix;
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
@@ -53,17 +52,15 @@ int **generate_directed_matrix(int **matrix, int n, double k)
             A_dir[i][j] = mulmr(T, k);
         }
     }
-    return A_dir;
 }
 
-int **generate_undirected_matrix(int **matrix_directed, int **matrix_to_change, int n)
+void generate_undirected_matrix(int **A_dir, int **A_undir, int n)
 {
-    int **A_undir = matrix_to_change;
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (matrix_directed[i][j] == 1)
+            if (A_dir[i][j] == 1)
             {
                 A_undir[i][j] = A_undir[j][i] = 1;
             }
@@ -73,8 +70,6 @@ int **generate_undirected_matrix(int **matrix_directed, int **matrix_to_change, 
             }
         }
     }
-
-    return A_undir;
 }
 
 void print_matrix(int **matrix, int n, const char *title)
