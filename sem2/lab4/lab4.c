@@ -96,6 +96,10 @@ int main()
     print_matrix(B_dir_reach, N, "Directed Graph Reachability matrix (K2)");
     print_matrix(B_undir_reach, N, "Undirected Graph Reachability matrix (K2)");
 
+    int **B_dir_strong = create_strong_connect_matrix(B_dir_reach, N);
+
+    print_matrix(B_dir_strong, N, "Directed Graph Strong Connectivity matrix (K2)");
+
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
@@ -140,12 +144,20 @@ int main()
     }
 
     CloseWindow();
+
     destroy_matrix(A_dir, N);
     destroy_matrix(A_undir, N);
+
     destroy_matrix(B_dir, N);
     destroy_matrix(B_undir, N);
+
     destroy_matrix(B_dir_2, N);
     destroy_matrix(B_dir_3, N);
+
+    destroy_matrix(B_dir_reach, N);
+    destroy_matrix(B_undir_reach, N);
+
+    destroy_matrix(B_dir_strong, N);
 
     return 0;
 }
