@@ -11,6 +11,10 @@
 
 int main()
 {
+    const int SCREEN_WIDTH = 1600;
+    const int SCREEN_HEIGHT = 900;
+    const int TEXT_SIZE = 20;
+
     int **A1_dir = create_matrix(N);
     int **A1_undir = create_matrix(N);
     int **A2_dir = create_matrix(N);
@@ -30,16 +34,14 @@ int main()
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
 
     SetTraceLogLevel(LOG_NONE);
-    const int screenWidth = 1600;
-    const int screenHeight = 900;
-    InitWindow(screenWidth, screenHeight, "Lab 4 - Graph Properties and Connectivity");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
 
     int **show[4] = {A1_dir, A1_undir, A2_dir, A2_undir};
     int curr = 0;
     float R = 300.0f;
     float r_node = 40.0f;
-    Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
+    Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
     Vector2 nodes[N];
     for (int i = 0; i < N; i++)
@@ -53,14 +55,7 @@ int main()
     {
         if (IsKeyPressed(KEY_SPACE))
         {
-            if (curr < 3)
-            {
-                curr++;
-            }
-            else
-            {
-                curr = 0;
-            }
+            curr = (curr + 1) % 4;
         }
 
         bool is_dir = (curr % 2 == 0);
@@ -73,7 +68,7 @@ int main()
         draw_graph(show[curr], nodes, N, r_node, center, is_dir);
 
         const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir, k);
-        DrawText(title, 20, 20, 20, DARKGRAY);
+        DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
 
         EndDrawing();
     }
