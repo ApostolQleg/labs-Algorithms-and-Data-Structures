@@ -62,10 +62,6 @@ void generate_undirected_matrix(int **A_dir, int **A_undir, int n)
             {
                 A_undir[i][j] = A_undir[j][i] = 1;
             }
-            else
-            {
-                A_undir[i][j] = 0;
-            }
         }
     }
 }
