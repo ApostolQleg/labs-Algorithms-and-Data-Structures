@@ -78,11 +78,17 @@ int main()
     int i_out_count = calc_isolated(out_deg, N, i_out_deg);
     int i_in_count = calc_isolated(in_deg, N, i_in_deg);
     int i_undir_count = calc_isolated(undir_deg, N, i_undir_deg);
-    
+
     print_isolated(i_out_deg, N, i_out_count, "Directed out-degree (K1)");
     print_isolated(i_in_deg, N, i_in_count, "Directed in-degree (K1)");
     print_isolated(i_undir_deg, N, i_undir_count, "Undirected (K1)");
     printf("\n");
+
+    int **A2_dir_2 = multiply_matrices(A2_dir, A2_dir, N);
+    int **A2_dir_3 = multiply_matrices(A2_dir_2, A2_dir, N);
+
+    print_matrix(A2_dir_2, N, "Paths of length 2 (A^2)");
+    print_matrix(A2_dir_3, N, "Paths of length 3 (A^3)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -132,6 +138,8 @@ int main()
     destroy_matrix(A1_undir, N);
     destroy_matrix(A2_dir, N);
     destroy_matrix(A2_undir, N);
+    destroy_matrix(A2_dir_2, N);
+    destroy_matrix(A2_dir_3, N);
 
     return 0;
 }
