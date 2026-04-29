@@ -10,8 +10,8 @@
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
 
-void calc_degrees_undir(int **matrix, int n, int *degrees);
-void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees);
+void calc_deg_undir(int **matrix, int n, int *degrees);
+void calc_deg_dir(int **matrix, int n, int *out_degrees, int *in_degrees);
 void print_degrees(int *degrees, int n, char *message);
 
 int main()
@@ -41,18 +41,18 @@ int main()
     print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
 
-    int undir_degrees[N] = {0};
-    int out_degrees[N] = {0};
-    int in_degrees[N] = {0};
+    int out_deg[N] = {0};
+    int in_deg[N] = {0};
+    int undir_deg[N] = {0};
 
-    int *degrees[3] = {undir_degrees, out_degrees, in_degrees};
+    int *degrees[3] = {out_deg, in_deg, undir_deg};
 
-    calc_degrees_undir(A1_undir, N, degrees[0]);
-    calc_degrees_dir(A1_dir, N, degrees[1], degrees[2]);
+    calc_deg_dir(A1_dir, N, degrees[0], degrees[1]);
+    calc_deg_undir(A1_undir, N, degrees[2]);
 
-    print_degrees(degrees[0], N, "Degrees of Undirected matrix (K1)");
-    print_degrees(degrees[1], N, "Out degrees of Directed matrix (K1)");
-    print_degrees(degrees[2], N, "In degrees of Directed matrix (K1)");
+    print_degrees(degrees[0], N, "Out degrees of Directed matrix (K1)");
+    print_degrees(degrees[1], N, "In degrees of Directed matrix (K1)");
+    print_degrees(degrees[2], N, "Degrees of Undirected matrix (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -105,7 +105,7 @@ int main()
     return 0;
 }
 
-void calc_degrees_undir(int **matrix, int n, int *degrees)
+void calc_deg_undir(int **matrix, int n, int *degrees)
 {
     for (int i = 0; i < n; i++)
     {
@@ -119,7 +119,7 @@ void calc_degrees_undir(int **matrix, int n, int *degrees)
     }
 }
 
-void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
+void calc_deg_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
 {
     for (int i = 0; i < n; i++)
     {
