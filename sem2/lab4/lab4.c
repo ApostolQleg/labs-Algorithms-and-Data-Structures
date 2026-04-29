@@ -22,27 +22,27 @@ int main()
 
     srand(SEED);
 
-    int **A1_dir = create_matrix(N);
-    int **A1_undir = create_matrix(N);
-    int **A2_dir = create_matrix(N);
-    int **A2_undir = create_matrix(N);
+    int **A_dir = create_matrix(N);
+    int **A_undir = create_matrix(N);
+    int **B_dir = create_matrix(N);
+    int **B_undir = create_matrix(N);
 
-    generate_directed_matrix(A1_dir, N, K1);
-    generate_undirected_matrix(A1_dir, A1_undir, N);
-    generate_directed_matrix(A2_dir, N, K2);
-    generate_undirected_matrix(A2_dir, A2_undir, N);
+    generate_directed_matrix(A_dir, N, K1);
+    generate_undirected_matrix(A_dir, A_undir, N);
+    generate_directed_matrix(B_dir, N, K2);
+    generate_undirected_matrix(B_dir, B_undir, N);
 
-    print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
-    print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
-    print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
-    print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
+    print_matrix(A_dir, N, "Directed Graph Matrix (K1)");
+    print_matrix(A_undir, N, "Undirected Graph Matrix (K1)");
+    print_matrix(B_dir, N, "Directed Graph Matrix (K2)");
+    print_matrix(B_undir, N, "Undirected Graph Matrix (K2)");
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
     int undir_deg[N] = {0};
 
-    calc_degrees_dir(A1_dir, N, out_deg, in_deg);
-    calc_degrees_undir(A1_undir, N, undir_deg);
+    calc_degrees_dir(A_dir, N, out_deg, in_deg);
+    calc_degrees_undir(A_undir, N, undir_deg);
 
     print_degrees(out_deg, N, "Out-degrees of Directed matrix (K1)");
     print_degrees(in_deg, N, "In-degrees of Directed matrix (K1)");
@@ -84,17 +84,23 @@ int main()
     print_isolated(i_undir_deg, N, i_undir_count, "Undirected (K1)");
     printf("\n");
 
-    int **A2_dir_2 = multiply_matrices(A2_dir, A2_dir, N);
-    int **A2_dir_3 = multiply_matrices(A2_dir_2, A2_dir, N);
+    int **B_dir_2 = multiply_matrices(B_dir, B_dir, N);
+    int **B_dir_3 = multiply_matrices(B_dir_2, B_dir, N);
 
-    print_matrix(A2_dir_2, N, "Paths of length 2 (A^2)");
-    print_matrix(A2_dir_3, N, "Paths of length 3 (A^3)");
+    print_matrix(B_dir_2, N, "Directed Graph paths of length 2 (K2)");
+    print_matrix(B_dir_3, N, "Directed Graph paths of length 3 (K2)");
+
+    int **B_dir_reach = create_reach_matrix(B_dir, N);
+    int **B_undir_reach = create_reach_matrix(B_undir, N);
+
+    print_matrix(B_dir_reach, N, "Directed Graph Reachability matrix (K2)");
+    print_matrix(B_undir_reach, N, "Undirected Graph Reachability matrix (K2)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
 
-    int **show[4] = {A1_dir, A1_undir, A2_dir, A2_undir};
+    int **show[4] = {A_dir, A_undir, B_dir, B_undir};
     int curr = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
@@ -134,12 +140,12 @@ int main()
     }
 
     CloseWindow();
-    destroy_matrix(A1_dir, N);
-    destroy_matrix(A1_undir, N);
-    destroy_matrix(A2_dir, N);
-    destroy_matrix(A2_undir, N);
-    destroy_matrix(A2_dir_2, N);
-    destroy_matrix(A2_dir_3, N);
+    destroy_matrix(A_dir, N);
+    destroy_matrix(A_undir, N);
+    destroy_matrix(B_dir, N);
+    destroy_matrix(B_undir, N);
+    destroy_matrix(B_dir_2, N);
+    destroy_matrix(B_dir_3, N);
 
     return 0;
 }

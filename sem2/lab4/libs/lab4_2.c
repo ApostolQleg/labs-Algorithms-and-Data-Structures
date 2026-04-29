@@ -20,3 +20,29 @@ int **multiply_matrices(int **A1, int **A2, int n)
     }
     return A3;
 }
+
+int **create_reach_matrix(int **matrix, int n)
+{
+    int **reach = create_matrix(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            reach[i][j] = (matrix[i][j] != 0) || (i == j);
+        }
+    }
+
+    for (int k = 0; k < n; k++)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                reach[i][j] = reach[i][j] || (reach[i][k] && reach[k][j]);
+            }
+        }
+    }
+
+    return reach;
+}
