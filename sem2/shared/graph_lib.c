@@ -3,12 +3,10 @@
 #include <math.h>
 #include "graph_lib.h"
 
-#define ARROW_LENGTH 15.0f
 #define ARROW_ANGLE (PI / 6.0f)
 #define LOOP_DIST_FACTOR 1.5f
 #define LOOP_RADIUS_FACTOR 1.25f
 #define LOOP_ARROW_OFFSET (PI / 4.0f)
-#define NODE_PADDING 2.0f
 
 int **create_matrix(int n)
 {
@@ -85,15 +83,15 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
-void draw_arrow(Vector2 target, float angle)
+void draw_arrow(Vector2 target, float angle, float arrow_length)
 {
     Vector2 v1 = {target.x, target.y};
     Vector2 v2 = {
-        target.x - ARROW_LENGTH * cosf(angle - ARROW_ANGLE),
-        target.y - ARROW_LENGTH * sinf(angle - ARROW_ANGLE)};
+        target.x - arrow_length * cosf(angle - ARROW_ANGLE),
+        target.y - arrow_length * sinf(angle - ARROW_ANGLE)};
     Vector2 v3 = {
-        target.x - ARROW_LENGTH * cosf(angle + ARROW_ANGLE),
-        target.y - ARROW_LENGTH * sinf(angle + ARROW_ANGLE)};
+        target.x - arrow_length * cosf(angle + ARROW_ANGLE),
+        target.y - arrow_length * sinf(angle + ARROW_ANGLE)};
 
     DrawTriangle(v1, v2, v3, GRAY);
     DrawTriangle(v1, v3, v2, GRAY);
@@ -116,18 +114,21 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
     if (show_arrow)
     {
         float alpha = atan2f(node.y - loop_center.y, node.x - loop_center.x) - LOOP_ARROW_OFFSET;
-
         Vector2 target = {
             loop_center.x + r_loop * cosf(alpha),
             loop_center.y + r_loop * sinf(alpha)};
         float angle = alpha + (PI / 2.0f);
 
-        draw_arrow(target, angle);
+        float arrow_length = r_node * 0.375f;
+        draw_arrow(target, angle, arrow_length);
     }
 }
 
 void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed)
 {
+    float arrow_length = r_node * 0.375f;
+    float node_padding = r_node * 0.05f;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
@@ -145,9 +146,9 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
                     {
                         float angle = atan2f(nodes[j].y - nodes[i].y, nodes[j].x - nodes[i].x);
                         Vector2 target = {
-                            nodes[j].x - (r_node + NODE_PADDING) * cosf(angle),
-                            nodes[j].y - (r_node + NODE_PADDING) * sinf(angle)};
-                        draw_arrow(target, angle);
+                            nodes[j].x - (r_node + node_padding) * cosf(angle),
+                            nodes[j].y - (r_node + node_padding) * sinf(angle)};
+                        draw_arrow(target, angle, arrow_length);
                     }
                 }
                 else
@@ -158,6 +159,8 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
         }
     }
 
+    int fontSize = (int)(r_node * 1.25f);
+
     for (int i = 0; i < n; i++)
     {
         DrawCircleV(nodes[i], r_node, LIGHTGRAY);
@@ -166,11 +169,10 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
         char text[10];
         snprintf(text, sizeof(text), "%d", i);
 
-        int fontSize = 50;
         int textWidth = MeasureText(text, fontSize);
 
-        int textX = nodes[i].x - (textWidth / 2);
-        int textY = nodes[i].y - (fontSize / 2);
+        int textX = (int)nodes[i].x - (textWidth / 2);
+        int textY = (int)nodes[i].y - (fontSize / 2);
 
         DrawText(text, textX, textY, fontSize, BLACK);
     }

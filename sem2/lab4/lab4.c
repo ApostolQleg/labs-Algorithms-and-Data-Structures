@@ -13,7 +13,7 @@ int main()
 {
     const int SCREEN_WIDTH = 1600;
     const int SCREEN_HEIGHT = 900;
-    const int TEXT_SIZE = 20;
+    const int TEXT_SIZE = 30;
     const float GRAPH_RADIUS = 300.0f;
     const float NODE_RADIUS = 40.0f;
 
@@ -41,16 +41,14 @@ int main()
 
     int **show[4] = {A1_dir, A1_undir, A2_dir, A2_undir};
     int curr = 0;
-    float R = 300.0f;
-    float r_node = 40.0f;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
     Vector2 nodes[N];
     for (int i = 0; i < N; i++)
     {
         float angle = 2.0f * PI * i / N;
-        nodes[i].x = center.x + R * cosf(angle);
-        nodes[i].y = center.y + R * sinf(angle);
+        nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
+        nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
     }
 
     bool is_dir = true;
