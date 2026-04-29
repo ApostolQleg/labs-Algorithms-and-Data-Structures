@@ -5,20 +5,29 @@
 #include "graph_lib.h"
 #include "n1_n2_n3_n4.h"
 
-#define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
+#define K1 (1 - (N3 * 0.01) - (N4 * 0.01) - 0.3)
+#define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
 
 int main()
 {
-    int **A_dir = create_matrix(N);
-    int **A_undir = create_matrix(N);
+    int **A1_dir = create_matrix(N);
+    int **A1_undir = create_matrix(N);
+    int **A2_dir = create_matrix(N);
+    int **A2_undir = create_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
-    generate_undirected_matrix(A_dir, A_undir, N);
+    A1_dir = generate_directed_matrix(A1_dir, N, K1);
+    A1_undir = generate_undirected_matrix(A1_dir, A1_undir, N);
 
-    print_matrix(A_dir, N, "Directed Graph Matrix");
-    print_matrix(A_undir, N, "Undirected Graph Matrix");
+    print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
+    print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
+
+    A2_dir = generate_directed_matrix(A2_dir, N, K2);
+    A2_undir = generate_undirected_matrix(A2_dir, A2_undir, N);
+
+    print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
+    print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
 
     SetTraceLogLevel(LOG_NONE);
     const int screenWidth = 1600;
@@ -49,7 +58,7 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        int **current_matrix = show_directed ? A_dir : A_undir;
+        int **current_matrix = show_directed ? A1_dir : A1_undir;
         draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
 
         const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
@@ -59,8 +68,8 @@ int main()
     }
 
     CloseWindow();
-    destroy_matrix(A_dir, N);
-    destroy_matrix(A_undir, N);
+    destroy_matrix(A1_dir, N);
+    destroy_matrix(A1_undir, N);
 
     return 0;
 }
