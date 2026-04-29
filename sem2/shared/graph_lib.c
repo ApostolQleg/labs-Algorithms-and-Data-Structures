@@ -3,10 +3,10 @@
 #include <math.h>
 #include "graph_lib.h"
 
-#define ARROW_ANGLE (PI / 6.0f)
+#define ARROW_ANGLE (PI / 7.0f)
 #define LOOP_DIST_FACTOR 1.5f
 #define LOOP_RADIUS_FACTOR 1.25f
-#define LOOP_ARROW_OFFSET (PI / 4.0f)
+#define LOOP_ARROW_OFFSET (PI / 4.5f)
 
 int **create_matrix(int n)
 {
@@ -79,7 +79,7 @@ void print_matrix(int **matrix, int n, const char *title)
     }
 }
 
-void draw_arrow(Vector2 target, float angle, float arrow_length)
+void draw_arrow(Vector2 target, float angle, float arrow_length, Color color)
 {
     Vector2 v1 = {target.x, target.y};
     Vector2 v2 = {
@@ -89,11 +89,11 @@ void draw_arrow(Vector2 target, float angle, float arrow_length)
         target.x - arrow_length * cosf(angle + ARROW_ANGLE),
         target.y - arrow_length * sinf(angle + ARROW_ANGLE)};
 
-    DrawTriangle(v1, v2, v3, GRAY);
-    DrawTriangle(v1, v3, v2, GRAY);
+    DrawTriangle(v1, v2, v3, color);
+    DrawTriangle(v1, v3, v2, color);
 }
 
-void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
+void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow, Color color)
 {
     float dx = node.x - center.x;
     float dy = node.y - center.y;
@@ -105,11 +105,11 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
 
     float r_loop = r_node * LOOP_RADIUS_FACTOR;
 
-    DrawCircleLines(loop_center.x, loop_center.y, r_loop, GRAY);
+    DrawCircleLines(loop_center.x, loop_center.y, r_loop, color);
 
     if (show_arrow)
     {
-        float arrow_length = r_node * 0.375f;
+        float arrow_length = r_node * 0.5f;
 
         float center_based_alpha = atan2f(node.y - loop_center.y, node.x - loop_center.x);
 
@@ -117,25 +117,28 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow)
         Vector2 target1 = {
             loop_center.x + r_loop * cosf(alpha1),
             loop_center.y + r_loop * sinf(alpha1)};
-        float angle1 = alpha1 + (PI / 2.0f);
-        draw_arrow(target1, angle1, arrow_length);
+        float angle1 = alpha1 + (PI / 2.2f);
+        draw_arrow(target1, angle1, arrow_length, color);
 
         float alpha2 = center_based_alpha + LOOP_ARROW_OFFSET;
         Vector2 target2 = {
             loop_center.x + r_loop * cosf(alpha2),
             loop_center.y + r_loop * sinf(alpha2)};
-        float angle2 = alpha2 - (PI / 2.0f);
-        draw_arrow(target2, angle2, arrow_length);
+        float angle2 = alpha2 - (PI / 2.2f);
+        draw_arrow(target2, angle2, arrow_length, color);
     }
 }
 
 void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed)
 {
-    float arrow_length = r_node * 0.375f;
+    float arrow_length = r_node * 0.5f;
     float node_padding = r_node * 0.05f;
+    float curvature = 15.0f;
+    float hueStep = 360.0f / n;
 
     for (int i = 0; i < n; i++)
     {
+        Color nodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
         for (int j = 0; j < n; j++)
         {
             if (matrix[i][j] == 1)
@@ -145,20 +148,59 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
 
                 if (i != j)
                 {
-                    DrawLineV(nodes[i], nodes[j], GRAY);
+                    Vector2 start = nodes[i];
+                    Vector2 end = nodes[j];
+
+                    Vector2 mid = {(start.x + end.x) / 2, (start.y + end.y) / 2};
+                    float dx = end.x - start.x;
+                    float dy = end.y - start.y;
+                    float dist = sqrtf(dx * dx + dy * dy);
+
+                    Vector2 normal = {-dy / dist, dx / dist};
+
+                    float current_bend = is_directed ? curvature : 0.0f;
+                    Vector2 control = {
+                        mid.x + normal.x * current_bend,
+                        mid.y + normal.y * current_bend};
+
+                    DrawSplineSegmentBezierQuadratic(start, control, end, 2.0f, nodeColor);
 
                     if (is_directed)
                     {
-                        float angle = atan2f(nodes[j].y - nodes[i].y, nodes[j].x - nodes[i].x);
-                        Vector2 target = {
-                            nodes[j].x - (r_node + node_padding) * cosf(angle),
-                            nodes[j].y - (r_node + node_padding) * sinf(angle)};
-                        draw_arrow(target, angle, arrow_length);
+                        float t = 1.0f;
+                        Vector2 target = end;
+
+                        while (t > 0.0f)
+                        {
+                            float q0 = (1.0f - t) * (1.0f - t);
+                            float q1 = 2.0f * t * (1.0f - t);
+                            float q2 = t * t;
+
+                            target.x = q0 * start.x + q1 * control.x + q2 * end.x;
+                            target.y = q0 * start.y + q1 * control.y + q2 * end.y;
+
+                            float dx_to_center = target.x - end.x;
+                            float dy_to_center = target.y - end.y;
+                            float distance = sqrtf(dx_to_center * dx_to_center + dy_to_center * dy_to_center);
+
+                            if (distance >= (r_node + node_padding))
+                            {
+                                break;
+                            }
+                            t -= 0.01f;
+                        }
+
+                        Vector2 tangent = {
+                            2.0f * (1.0f - t) * (control.x - start.x) + 2.0f * t * (end.x - control.x),
+                            2.0f * (1.0f - t) * (control.y - start.y) + 2.0f * t * (end.y - control.y)};
+                        float angle = atan2f(tangent.y, tangent.x);
+
+                        draw_arrow(target, angle, arrow_length, nodeColor);
                     }
                 }
                 else
                 {
-                    draw_self_loop(nodes[i], center, r_node, is_directed);
+                    draw_self_loop(nodes[i], center, r_node, is_directed, nodeColor);
                 }
             }
         }
@@ -168,8 +210,9 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
 
     for (int i = 0; i < n; i++)
     {
-        DrawCircleV(nodes[i], r_node, LIGHTGRAY);
-        DrawCircleLines(nodes[i].x, nodes[i].y, r_node, DARKGRAY);
+        Color nodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
+
+        DrawCircleV(nodes[i], r_node, nodeColor);
 
         char text[10];
         snprintf(text, sizeof(text), "%d", i + 1);
@@ -179,6 +222,6 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
         int textX = (int)nodes[i].x - (textWidth / 2);
         int textY = (int)nodes[i].y - (fontSize / 2);
 
-        DrawText(text, textX, textY, fontSize, BLACK);
+        DrawText(text, textX, textY, fontSize, RAYWHITE);
     }
 }
