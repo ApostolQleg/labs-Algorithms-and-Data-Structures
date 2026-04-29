@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include "raylib.h"
@@ -8,6 +9,9 @@
 #define K1 (1 - (N3 * 0.01) - (N4 * 0.01) - 0.3)
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
+
+void calc_degrees_undir(int **matrix, int n, int *degrees);
+void print_degrees(int *degrees, int n, char *message);
 
 int main()
 {
@@ -34,6 +38,13 @@ int main()
 
     print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
+
+    int degrees[N];
+    memset(degrees, 0, N * sizeof(int));
+
+    calc_degrees_undir(A1_undir, N, degrees);
+
+    print_degrees(degrees, N, "Degrees of Undirected matrix (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -84,4 +95,34 @@ int main()
     destroy_matrix(A2_undir, N);
 
     return 0;
+}
+
+void calc_degrees_undir(int **matrix, int n, int *degrees)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                if (i == j)
+                {
+                    degrees[i] += 2; 
+                }
+                else
+                {
+                    degrees[i]++;
+                }
+            }
+        }
+    }
+}
+
+void print_degrees(int *degrees, int n, char *message)
+{
+    printf("\n%s\n", message);
+    for (int i = 0; i < n; i++)
+    {
+        printf("%3d: %3d\n", i, degrees[i]);
+    }
 }
