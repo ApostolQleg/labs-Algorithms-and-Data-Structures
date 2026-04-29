@@ -99,6 +99,7 @@ int main()
     int **B_dir_strong = create_strong_connect_matrix(B_dir_reach, N);
 
     print_matrix(B_dir_strong, N, "Directed Graph Strong Connectivity matrix (K2)");
+    print_strong_groups(B_dir_strong, N, "Directed Graph (K2)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");

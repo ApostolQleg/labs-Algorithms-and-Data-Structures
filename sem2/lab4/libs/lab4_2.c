@@ -21,20 +21,6 @@ int **multiply_matrices(int **matrix_1, int **matrix_2, int n)
     return matrix;
 }
 
-int **create_strong_connect_matrix(int **r_matrix, int n)
-{
-    int **s_matrix = create_matrix(n);
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            s_matrix[i][j] = r_matrix[i][j] && r_matrix[j][i];
-        }
-    }
-    return s_matrix;
-}
-
 int **create_reach_matrix(int **matrix, int n)
 {
     int **r_matrix = create_matrix(n);
@@ -59,4 +45,48 @@ int **create_reach_matrix(int **matrix, int n)
     }
 
     return r_matrix;
+}
+
+int **create_strong_connect_matrix(int **r_matrix, int n)
+{
+    int **s_matrix = create_matrix(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            s_matrix[i][j] = r_matrix[i][j] && r_matrix[j][i];
+        }
+    }
+    return s_matrix;
+}
+
+void print_strong_groups(int **s_matrix, int n, char *graph_name)
+{
+    int *visited = (int *)calloc(n, sizeof(int));
+    int count = 0;
+
+    printf("\nStrongly Connected Components for %s:\n", graph_name);
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+        {
+            count++;
+            printf("Component %d: { %d", count, i + 1);
+            visited[i] = 1;
+
+            for (int j = i + 1; j < n; j++)
+            {
+                if (s_matrix[i][j] == 1)
+                {
+                    printf(", %d", j + 1);
+                    visited[j] = 1;
+                }
+            }
+            printf(" }\n");
+        }
+    }
+
+    free(visited);
 }
