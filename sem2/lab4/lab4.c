@@ -10,6 +10,7 @@
 
 #define K1 (1 - (N3 * 0.01) - (N4 * 0.01) - 0.3)
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
+// #define K2 (1 - (N3 * 0.005) - (N4 * 0.035) - 0.27) // - наглядніше для графа конденсації
 #define N (10 + N3)
 
 int main()
@@ -112,40 +113,46 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
 
-    int **show[4] = {A_dir, A_undir, B_dir, B_undir};
+    int **show_matrices[5] = {A_dir, A_undir, B_dir, B_undir, B_dir_cond};
+    int show_sizes[5] = {N, N, N, N, count};
+    bool show_is_dir[5] = {true, false, true, false, true};
+    const char *show_titles[5] = {
+        "Directed (K1)",
+        "Undirected (K1)",
+        "Directed (K2)",
+        "Undirected (K2)",
+        "Condensation Graph (K2)"};
+
     int curr = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
-
-    Vector2 nodes[N];
-    for (int i = 0; i < N; i++)
-    {
-        float angle = 2.0f * PI * i / N;
-        nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
-        nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
-    }
-
-    bool is_dir = true;
-    const char *dir_text = "Directed";
-    const char *k_text = "K1";
 
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_SPACE))
         {
-            curr = (curr + 1) % 4;
+            curr = (curr + 1) % 5;
+        }
 
-            is_dir = (curr % 2 == 0);
-            dir_text = is_dir ? "Directed" : "Undirected";
-            k_text = curr < 2 ? "K1" : "K2";
+        int current_n = show_sizes[curr];
+        int **current_matrix = show_matrices[curr];
+        bool is_dir = show_is_dir[curr];
+
+        Vector2 current_nodes[current_n];
+        for (int i = 0; i < current_n; i++)
+        {
+            float angle = 2.0f * PI * i / current_n;
+            current_nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
+            current_nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
         }
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph(show[curr], nodes, N, NODE_RADIUS, center, is_dir);
-        draw_degrees(show[curr], nodes, N, NODE_RADIUS, center, is_dir);
+        draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
 
-        const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir_text, k_text);
+        draw_degrees(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
+
+        const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
 
         EndDrawing();
