@@ -18,6 +18,8 @@ int calc_regularity(int *degrees, int n);
 void print_regularity(int r_degree, char *graph_name);
 int calc_pendant(int *degrees, int n, int *p_deg);
 void print_pendant(int *p_deg, int n, int count, char *graph_name);
+int calc_isolated(int *degrees, int n, int *i_deg);
+void print_isolated(int *i_deg, int n, int count, char *graph_name);
 
 int main()
 {
@@ -54,6 +56,7 @@ int main()
     print_degrees(out_deg, N, "Out-degrees of Directed matrix (K1)");
     print_degrees(in_deg, N, "In-degrees of Directed matrix (K1)");
     print_degrees(undir_deg, N, "Degrees of Undirected matrix (K1)");
+    printf("\n");
 
     int r_out_deg = calc_regularity(out_deg, N);
     int r_in_deg = calc_regularity(in_deg, N);
@@ -61,6 +64,7 @@ int main()
     print_regularity(r_out_deg, "Directed out-degree (K1)");
     print_regularity(r_in_deg, "Directed  in-degree (K1)");
     print_regularity(r_undir_deg, "Undirected (K1)");
+    printf("\n");
 
     int p_out_deg[N] = {0};
     int p_in_deg[N] = {0};
@@ -71,6 +75,18 @@ int main()
     print_pendant(p_out_deg, N, p_out_count, "Directed out-degree (K1)");
     print_pendant(p_in_deg, N, p_in_count, "Directed in-degree (K1)");
     print_pendant(p_undir_deg, N, p_undir_count, "Undirected (K1)");
+    printf("\n");
+
+    int i_out_deg[N] = {0};
+    int i_in_deg[N] = {0};
+    int i_undir_deg[N] = {0};
+    int i_out_count = calc_isolated(out_deg, N, i_out_deg);
+    int i_in_count = calc_isolated(in_deg, N, i_in_deg);
+    int i_undir_count = calc_isolated(undir_deg, N, i_undir_deg);
+    print_isolated(i_out_deg, N, i_out_count, "Directed out-degree (K1)");
+    print_isolated(i_in_deg, N, i_in_count, "Directed in-degree (K1)");
+    print_isolated(i_undir_deg, N, i_undir_count, "Undirected (K1)");
+    printf("\n");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -235,7 +251,7 @@ void print_regularity(int r_degree, char *graph_name)
 {
     if (r_degree >= 0)
     {
-        printf("\n%s graph is regular and it's regularity degree is %d.\n", graph_name, r_degree);
+        printf("\n %s graph is regular and it's regularity degree is %d.\n", graph_name, r_degree);
     }
     else
     {
@@ -261,17 +277,50 @@ void print_pendant(int *p_deg, int n, int count, char *graph_name)
 {
     if (count > 0)
     {
-        printf("\n%s graph has pendant nodes\n", graph_name);
+        printf("\n %s graph has pendant nodes:\n", graph_name);
         for (int i = 0; i < n; i++)
         {
             if (p_deg[i] == 1)
             {
-                printf("%d   ", i + 1);
+                printf("   %d", i + 1);
             }
         }
     }
     else
     {
-        printf("\n%s graph doesn't have pendant nodes\n", graph_name);
+        printf("\n %s graph doesn't have pendant nodes:\n", graph_name);
+    }
+}
+
+int calc_isolated(int *degrees, int n, int *i_deg)
+{
+    int count = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (degrees[i] == 0)
+        {
+            i_deg[i] = 1;
+            count++;
+        }
+    }
+    return count;
+}
+
+void print_isolated(int *i_deg, int n, int count, char *graph_name)
+{
+    if (count > 0)
+    {
+        printf("\n %s graph has isolated nodes:\n", graph_name);
+        for (int i = 0; i < n; i++)
+        {
+            if (i_deg[i] == 1)
+            {
+                printf("   %d", i + 1);
+            }
+        }
+    }
+    else
+    {
+        printf("\n %s graph doesn't have isolated nodes:\n", graph_name);
     }
 }
