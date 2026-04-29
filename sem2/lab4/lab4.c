@@ -15,7 +15,7 @@ int main()
     const int SCREEN_HEIGHT = 900;
     const int TEXT_SIZE = 30;
     const float GRAPH_RADIUS = 300.0f;
-    const float NODE_RADIUS = 40.0f;
+    const float NODE_RADIUS = 30.0f;
 
     int **A1_dir = create_matrix(N);
     int **A1_undir = create_matrix(N);
