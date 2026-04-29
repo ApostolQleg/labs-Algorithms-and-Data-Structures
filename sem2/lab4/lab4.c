@@ -32,10 +32,11 @@ int main()
     SetTraceLogLevel(LOG_NONE);
     const int screenWidth = 1600;
     const int screenHeight = 900;
-    InitWindow(screenWidth, screenHeight, "Lab 3 - Raylib Graph Representation");
+    InitWindow(screenWidth, screenHeight, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
 
-    bool show_directed = true;
+    int **show[4] = {A1_dir, A1_undir, A2_dir, A2_undir};
+    int curr = 0;
     float R = 300.0f;
     float r_node = 40.0f;
     Vector2 center = {screenWidth / 2.0f, screenHeight / 2.0f};
@@ -52,16 +53,26 @@ int main()
     {
         if (IsKeyPressed(KEY_SPACE))
         {
-            show_directed = !show_directed;
+            if (curr < 3)
+            {
+                curr++;
+            }
+            else
+            {
+                curr = 0;
+            }
         }
+
+        bool is_dir = (curr % 2 == 0);
+
+        const char *dir = is_dir ? "Directed" : "Undirected";
+        const char *k = curr < 2 ? "K1" : "K2";
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
+        draw_graph(show[curr], nodes, N, r_node, center, is_dir);
 
-        int **current_matrix = show_directed ? A1_dir : A1_undir;
-        draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
-
-        const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
+        const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir, k);
         DrawText(title, 20, 20, 20, DARKGRAY);
 
         EndDrawing();
@@ -70,6 +81,8 @@ int main()
     CloseWindow();
     destroy_matrix(A1_dir, N);
     destroy_matrix(A1_undir, N);
+    destroy_matrix(A2_dir, N);
+    destroy_matrix(A2_undir, N);
 
     return 0;
 }

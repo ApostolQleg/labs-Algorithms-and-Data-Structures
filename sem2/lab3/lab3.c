@@ -23,7 +23,7 @@ int main()
     SetTraceLogLevel(LOG_NONE);
     const int screenWidth = 1600;
     const int screenHeight = 900;
-    InitWindow(screenWidth, screenHeight, "Lab 3 - Raylib Graph Representation");
+    InitWindow(screenWidth, screenHeight, "Lab 3 - Graphical Graph Representation");
     SetTargetFPS(60);
 
     bool show_directed = true;
@@ -52,7 +52,7 @@ int main()
         int **current_matrix = show_directed ? A_dir : A_undir;
         draw_graph(current_matrix, nodes, N, r_node, center, show_directed);
 
-        const char *title = show_directed ? "Directed Graph (Press 'SPACE' to switch)" : "Undirected Graph (Press 'SPACE' to switch)";
+        const char *title = show_directed ? "Directed Graph [Press 'SPACE' to switch]" : "Undirected Graph [Press 'SPACE' to switch]";
         DrawText(title, 20, 20, 20, DARKGRAY);
 
         EndDrawing();
