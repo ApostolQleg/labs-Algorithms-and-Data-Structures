@@ -11,6 +11,7 @@
 #define N (10 + N3)
 
 void calc_degrees_undir(int **matrix, int n, int *degrees);
+void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees);
 void print_degrees(int *degrees, int n, char *message);
 
 int main()
@@ -21,30 +22,37 @@ int main()
     const float GRAPH_RADIUS = 300.0f;
     const float NODE_RADIUS = 30.0f;
 
+    srand(SEED);
+
     int **A1_dir = create_matrix(N);
     int **A1_undir = create_matrix(N);
     int **A2_dir = create_matrix(N);
     int **A2_undir = create_matrix(N);
 
-    srand(SEED);
     generate_directed_matrix(A1_dir, N, K1);
     generate_undirected_matrix(A1_dir, A1_undir, N);
-
-    print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
-    print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
 
     generate_directed_matrix(A2_dir, N, K2);
     generate_undirected_matrix(A2_dir, A2_undir, N);
 
+    print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
+    print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
+
     print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
 
-    int degrees[N];
-    memset(degrees, 0, N * sizeof(int));
+    int undir_degrees[N] = {0};
+    int out_degrees[N] = {0};
+    int in_degrees[N] = {0};
 
-    calc_degrees_undir(A1_undir, N, degrees);
+    int *degrees[3] = {undir_degrees, out_degrees, in_degrees};
 
-    print_degrees(degrees, N, "Degrees of Undirected matrix (K1)");
+    calc_degrees_undir(A1_undir, N, degrees[0]);
+    calc_degrees_dir(A1_dir, N, degrees[1], degrees[2]);
+
+    print_degrees(degrees[0], N, "Degrees of Undirected matrix (K1)");
+    print_degrees(degrees[1], N, "Out degrees of Directed matrix (K1)");
+    print_degrees(degrees[2], N, "In degrees of Directed matrix (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -105,14 +113,22 @@ void calc_degrees_undir(int **matrix, int n, int *degrees)
         {
             if (matrix[i][j] == 1)
             {
-                if (i == j)
-                {
-                    degrees[i] += 2; 
-                }
-                else
-                {
-                    degrees[i]++;
-                }
+                i == j ? degrees[i] += 2 : degrees[i]++;
+            }
+        }
+    }
+}
+
+void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                out_degrees[i]++;
+                in_degrees[j]++;
             }
         }
     }
