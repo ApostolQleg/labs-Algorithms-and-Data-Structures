@@ -32,10 +32,10 @@ int main()
     generate_directed_matrix(B_dir, N, K2);
     generate_undirected_matrix(B_dir, B_undir, N);
 
-    print_matrix(A_dir, N, "Directed Graph Matrix (K1)");
-    print_matrix(A_undir, N, "Undirected Graph Matrix (K1)");
-    print_matrix(B_dir, N, "Directed Graph Matrix (K2)");
-    print_matrix(B_undir, N, "Undirected Graph Matrix (K2)");
+    print_matrix(A_dir, N, "Directed Graph matrix (K1)");
+    print_matrix(A_undir, N, "Undirected Graph matrix (K1)");
+    print_matrix(B_dir, N, "Directed Graph matrix (K2)");
+    print_matrix(B_undir, N, "Undirected Graph matrix (K2)");
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
@@ -101,6 +101,13 @@ int main()
     print_matrix(B_dir_strong, N, "Directed Graph Strong Connectivity matrix (K2)");
     print_strong_groups(B_dir_strong, N, "Directed Graph (K2)");
 
+    int groups[N] = {0};
+    int count = 0;
+
+    int **B_dir_cond = create_condensation_matrix(B_dir, B_dir_strong, N, &count, groups);
+
+    print_matrix(B_dir_cond, count, "Directed Graph Condensation matrix (K2)");
+
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
     SetTargetFPS(60);
@@ -159,6 +166,7 @@ int main()
     destroy_matrix(B_undir_reach, N);
 
     destroy_matrix(B_dir_strong, N);
+    destroy_matrix(B_dir_cond, count);
 
     return 0;
 }

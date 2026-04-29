@@ -90,3 +90,52 @@ void print_strong_groups(int **s_matrix, int n, char *graph_name)
 
     free(visited);
 }
+
+int **create_condensation_matrix(int **matrix, int **s_matrix, int n, int *count, int *groups)
+{
+    int *visited = (int *)calloc(n, sizeof(int));
+    int comp_id = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+        {
+            groups[i] = comp_id;
+            visited[i] = 1;
+
+            for (int j = i + 1; j < n; j++)
+            {
+                if (s_matrix[i][j] == 1)
+                {
+                    groups[j] = comp_id;
+                    visited[j] = 1;
+                }
+            }
+            comp_id++;
+        }
+    }
+    free(visited);
+
+    *count = comp_id;
+
+    int **cond_matrix = create_matrix(comp_id);
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                int comp_i = groups[i];
+                int comp_j = groups[j];
+
+                if (comp_i != comp_j)
+                {
+                    cond_matrix[comp_i][comp_j] = 1;
+                }
+            }
+        }
+    }
+
+    return cond_matrix;
+}
