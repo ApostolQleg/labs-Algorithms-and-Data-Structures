@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "raylib.h"
-#include "graph_lib.h"
+#include "../shared/graph_lib.h"
 
 #define N1 5
 #define N2 4
