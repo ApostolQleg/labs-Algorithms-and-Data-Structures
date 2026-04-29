@@ -10,16 +10,16 @@
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
 
-void calc_deg_undir(int **matrix, int n, int *degrees);
-void calc_deg_dir(int **matrix, int n, int *out_degrees, int *in_degrees);
+void calc_degrees(int **matrix, int n, int *out_degrees, int *in_degrees, int *degrees);
 void print_degrees(int *degrees, int n, char *message);
+void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_dir);
 
 int main()
 {
     const int SCREEN_WIDTH = 1600;
     const int SCREEN_HEIGHT = 900;
     const int TEXT_SIZE = 30;
-    const float GRAPH_RADIUS = 300.0f;
+    const float GRAPH_RADIUS = 250.0f;
     const float NODE_RADIUS = 30.0f;
 
     srand(SEED);
@@ -43,16 +43,13 @@ int main()
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
-    int undir_deg[N] = {0};
+    int deg[N] = {0};
 
-    int *degrees[3] = {out_deg, in_deg, undir_deg};
+    calc_degrees(A1_dir, N, out_deg, in_deg, deg);
 
-    calc_deg_dir(A1_dir, N, degrees[0], degrees[1]);
-    calc_deg_undir(A1_undir, N, degrees[2]);
-
-    print_degrees(degrees[0], N, "Out degrees of Directed matrix (K1)");
-    print_degrees(degrees[1], N, "In degrees of Directed matrix (K1)");
-    print_degrees(degrees[2], N, "Degrees of Undirected matrix (K1)");
+    print_degrees(out_deg, N, "Out degrees of Directed matrix (K1)");
+    print_degrees(in_deg, N, "In degrees of Directed matrix (K1)");
+    print_degrees(deg, N, "Degrees of Undirected matrix (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -89,6 +86,7 @@ int main()
         ClearBackground(RAYWHITE);
 
         draw_graph(show[curr], nodes, N, NODE_RADIUS, center, is_dir);
+        draw_degrees(show[curr], nodes, N, NODE_RADIUS, center, is_dir);
 
         const char *title = TextFormat("This matrix is %s (%s) [Press 'SPACE' to switch]", dir_text, k_text);
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
@@ -105,21 +103,7 @@ int main()
     return 0;
 }
 
-void calc_deg_undir(int **matrix, int n, int *degrees)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (matrix[i][j] == 1)
-            {
-                i == j ? degrees[i] += 2 : degrees[i]++;
-            }
-        }
-    }
-}
-
-void calc_deg_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
+void calc_degrees(int **matrix, int n, int *out_degrees, int *in_degrees, int *degrees)
 {
     for (int i = 0; i < n; i++)
     {
@@ -129,6 +113,7 @@ void calc_deg_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
             {
                 out_degrees[i]++;
                 in_degrees[j]++;
+                degrees[i] += (i == j) ? 2 : 1;
             }
         }
     }
@@ -140,5 +125,61 @@ void print_degrees(int *degrees, int n, char *message)
     for (int i = 0; i < n; i++)
     {
         printf("%3d: %3d\n", i + 1, degrees[i]);
+    }
+}
+
+void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_dir)
+{
+    int fontSize = (int)(r_node * 0.75f);
+    float offset = r_node * 2.75f;
+
+    Font defaultFont = GetFontDefault();
+
+    for (int i = 0; i < n; i++)
+    {
+        int in_deg = 0, out_deg = 0, deg = 0;
+
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                out_deg++;
+                deg += (i == j) ? 2 : 1;
+            }
+            if (matrix[j][i] == 1)
+                in_deg++;
+        }
+
+        float dx = nodes[i].x - center.x;
+        float dy = nodes[i].y - center.y;
+        float dist = sqrtf(dx * dx + dy * dy);
+
+        Vector2 textPos = {
+            nodes[i].x + (dx / dist) * (r_node + offset),
+            nodes[i].y + (dy / dist) * (r_node + offset)};
+
+        float angleRadians = atan2f(dy, dx);
+        float rotation = angleRadians * RAD2DEG;
+
+        if (cosf(angleRadians) < 0)
+        {
+            rotation += 180.0f;
+        }
+
+        const char *text;
+        if (is_dir)
+        {
+            text = TextFormat("I : %d\nO : %d", in_deg, out_deg);
+        }
+        else
+        {
+            text = TextFormat("D : %d", deg);
+        }
+
+        Vector2 textSize = MeasureTextEx(defaultFont, text, fontSize, 1.0f);
+
+        Vector2 origin = {textSize.x / 2.0f, textSize.y / 2.0f};
+
+        DrawTextPro(defaultFont, text, textPos, origin, rotation, fontSize, 1.0f, DARKGRAY);
     }
 }
