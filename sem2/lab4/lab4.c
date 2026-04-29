@@ -6,6 +6,7 @@
 #include "graph_lib.h"
 #include "n1_n2_n3_n4.h"
 #include "lab4_1.h"
+#include "lab4_2.h"
 
 #define K1 (1 - (N3 * 0.01) - (N4 * 0.01) - 0.3)
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
@@ -28,21 +29,21 @@ int main()
 
     generate_directed_matrix(A1_dir, N, K1);
     generate_undirected_matrix(A1_dir, A1_undir, N);
-
     generate_directed_matrix(A2_dir, N, K2);
     generate_undirected_matrix(A2_dir, A2_undir, N);
 
     print_matrix(A1_dir, N, "Directed Graph Matrix (K1)");
     print_matrix(A1_undir, N, "Undirected Graph Matrix (K1)");
-
     print_matrix(A2_dir, N, "Directed Graph Matrix (K2)");
     print_matrix(A2_undir, N, "Undirected Graph Matrix (K2)");
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
     int undir_deg[N] = {0};
+
     calc_degrees_dir(A1_dir, N, out_deg, in_deg);
     calc_degrees_undir(A1_undir, N, undir_deg);
+
     print_degrees(out_deg, N, "Out-degrees of Directed matrix (K1)");
     print_degrees(in_deg, N, "In-degrees of Directed matrix (K1)");
     print_degrees(undir_deg, N, "Degrees of Undirected matrix (K1)");
@@ -51,6 +52,7 @@ int main()
     int r_out_deg = calc_regularity(out_deg, N);
     int r_in_deg = calc_regularity(in_deg, N);
     int r_undir_deg = calc_regularity(undir_deg, N);
+
     print_regularity(r_out_deg, "Directed out-degree (K1)");
     print_regularity(r_in_deg, "Directed  in-degree (K1)");
     print_regularity(r_undir_deg, "Undirected (K1)");
@@ -59,9 +61,11 @@ int main()
     int p_out_deg[N] = {0};
     int p_in_deg[N] = {0};
     int p_undir_deg[N] = {0};
+
     int p_out_count = calc_pendant(out_deg, N, p_out_deg);
     int p_in_count = calc_pendant(in_deg, N, p_in_deg);
     int p_undir_count = calc_pendant(undir_deg, N, p_undir_deg);
+
     print_pendant(p_out_deg, N, p_out_count, "Directed out-degree (K1)");
     print_pendant(p_in_deg, N, p_in_count, "Directed in-degree (K1)");
     print_pendant(p_undir_deg, N, p_undir_count, "Undirected (K1)");
@@ -70,9 +74,11 @@ int main()
     int i_out_deg[N] = {0};
     int i_in_deg[N] = {0};
     int i_undir_deg[N] = {0};
+
     int i_out_count = calc_isolated(out_deg, N, i_out_deg);
     int i_in_count = calc_isolated(in_deg, N, i_in_deg);
     int i_undir_count = calc_isolated(undir_deg, N, i_undir_deg);
+    
     print_isolated(i_out_deg, N, i_out_count, "Directed out-degree (K1)");
     print_isolated(i_in_deg, N, i_in_count, "Directed in-degree (K1)");
     print_isolated(i_undir_deg, N, i_undir_count, "Undirected (K1)");
