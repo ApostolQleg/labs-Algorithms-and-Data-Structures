@@ -16,11 +16,13 @@ void print_degrees(int *degrees, int n, char *message);
 void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_dir);
 int calc_regularity(int *degrees, int n);
 void print_regularity(int r_degree, char *graph_name);
+int calc_pendant(int *degrees, int n, int *p_deg);
+void print_pendant(int *p_deg, int n, int count, char *graph_name);
 
 int main()
 {
     const int SCREEN_WIDTH = 1600;
-    const int SCREEN_HEIGHT = 900;
+    const int SCREEN_HEIGHT = 1200;
     const int TEXT_SIZE = 30;
     const float GRAPH_RADIUS = 250.0f;
     const float NODE_RADIUS = 30.0f;
@@ -46,22 +48,29 @@ int main()
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
-    calc_degrees_dir(A1_dir, N, out_deg, in_deg);
-
     int undir_deg[N] = {0};
+    calc_degrees_dir(A1_dir, N, out_deg, in_deg);
     calc_degrees_undir(A1_undir, N, undir_deg);
-
-    print_degrees(out_deg, N, "Out degrees of Directed matrix (K1)");
-    print_degrees(in_deg, N, "In degrees of Directed matrix (K1)");
+    print_degrees(out_deg, N, "Out-degrees of Directed matrix (K1)");
+    print_degrees(in_deg, N, "In-degrees of Directed matrix (K1)");
     print_degrees(undir_deg, N, "Degrees of Undirected matrix (K1)");
 
-    int r_undir_deg = calc_regularity(undir_deg, N);
     int r_out_deg = calc_regularity(out_deg, N);
     int r_in_deg = calc_regularity(in_deg, N);
-
-    print_regularity(r_undir_deg, "Undirected (K1)");
+    int r_undir_deg = calc_regularity(undir_deg, N);
     print_regularity(r_out_deg, "Directed out-degree (K1)");
-    print_regularity(r_in_deg, "Undirected in-degree (K1)");
+    print_regularity(r_in_deg, "Directed  in-degree (K1)");
+    print_regularity(r_undir_deg, "Undirected (K1)");
+
+    int p_out_deg[N] = {0};
+    int p_in_deg[N] = {0};
+    int p_undir_deg[N] = {0};
+    int p_out_count = calc_pendant(out_deg, N, p_out_deg);
+    int p_in_count = calc_pendant(in_deg, N, p_in_deg);
+    int p_undir_count = calc_pendant(undir_deg, N, p_undir_deg);
+    print_pendant(p_out_deg, N, p_out_count, "Directed out-degree (K1)");
+    print_pendant(p_in_deg, N, p_in_count, "Directed in-degree (K1)");
+    print_pendant(p_undir_deg, N, p_undir_count, "Undirected (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -231,5 +240,38 @@ void print_regularity(int r_degree, char *graph_name)
     else
     {
         printf("\n %s graph is not regular.\n", graph_name);
+    }
+}
+
+int calc_pendant(int *degrees, int n, int *p_deg)
+{
+    int count = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (degrees[i] == 1)
+        {
+            p_deg[i] = 1;
+            count++;
+        }
+    }
+    return count;
+}
+
+void print_pendant(int *p_deg, int n, int count, char *graph_name)
+{
+    if (count > 0)
+    {
+        printf("\n%s graph has pendant nodes\n", graph_name);
+        for (int i = 0; i < n; i++)
+        {
+            if (p_deg[i] == 1)
+            {
+                printf("%d   ", i + 1);
+            }
+        }
+    }
+    else
+    {
+        printf("\n%s graph doesn't have pendant nodes\n", graph_name);
     }
 }
