@@ -2,13 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "raylib.h"
-#include "../shared/graph_lib.h"
+#include "graph_lib.h"
+#include "n1_n2_n3_n4.h"
 
-#define N1 5
-#define N2 4
-#define N3 0
-#define N4 4
-#define SEED ((N1 * 1000) + (N2 * 100) + (N3 * 10) + N4)
 #define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
 #define N (10 + N3)
 
