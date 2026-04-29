@@ -172,7 +172,7 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
         DrawCircleLines(nodes[i].x, nodes[i].y, r_node, DARKGRAY);
 
         char text[10];
-        snprintf(text, sizeof(text), "%d", i);
+        snprintf(text, sizeof(text), "%d", i + 1);
 
         int textWidth = MeasureText(text, fontSize);
 

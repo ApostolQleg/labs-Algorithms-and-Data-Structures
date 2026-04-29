@@ -139,6 +139,6 @@ void print_degrees(int *degrees, int n, char *message)
     printf("\n%s\n", message);
     for (int i = 0; i < n; i++)
     {
-        printf("%3d: %3d\n", i, degrees[i]);
+        printf("%3d: %3d\n", i + 1, degrees[i]);
     }
 }
