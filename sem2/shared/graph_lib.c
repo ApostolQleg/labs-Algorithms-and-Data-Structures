@@ -73,9 +73,9 @@ void print_matrix(int **matrix, int n, const char *title)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%d ", matrix[i][j]);
+            printf("%3d ", matrix[i][j]);
         }
-        printf("\n");
+        printf("\n\n");
     }
 }
 
