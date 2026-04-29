@@ -10,9 +10,12 @@
 #define K2 (1 - (N3 * 0.005) - (N4 * 0.005) - 0.27)
 #define N (10 + N3)
 
-void calc_degrees(int **matrix, int n, int *out_degrees, int *in_degrees, int *degrees);
+void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees);
+void calc_degrees_undir(int **matrix, int n, int *undir_degrees);
 void print_degrees(int *degrees, int n, char *message);
 void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_dir);
+int calc_regularity(int *degrees, int n);
+void print_regularity(int r_degree, char *graph_name);
 
 int main()
 {
@@ -43,13 +46,22 @@ int main()
 
     int out_deg[N] = {0};
     int in_deg[N] = {0};
-    int deg[N] = {0};
+    calc_degrees_dir(A1_dir, N, out_deg, in_deg);
 
-    calc_degrees(A1_dir, N, out_deg, in_deg, deg);
+    int undir_deg[N] = {0};
+    calc_degrees_undir(A1_undir, N, undir_deg);
 
     print_degrees(out_deg, N, "Out degrees of Directed matrix (K1)");
     print_degrees(in_deg, N, "In degrees of Directed matrix (K1)");
-    print_degrees(deg, N, "Degrees of Undirected matrix (K1)");
+    print_degrees(undir_deg, N, "Degrees of Undirected matrix (K1)");
+
+    int r_undir_deg = calc_regularity(undir_deg, N);
+    int r_out_deg = calc_regularity(out_deg, N);
+    int r_in_deg = calc_regularity(in_deg, N);
+
+    print_regularity(r_undir_deg, "Undirected (K1)");
+    print_regularity(r_out_deg, "Directed out-degree (K1)");
+    print_regularity(r_in_deg, "Undirected in-degree (K1)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 4 - Graph Properties and Connectivity");
@@ -103,7 +115,7 @@ int main()
     return 0;
 }
 
-void calc_degrees(int **matrix, int n, int *out_degrees, int *in_degrees, int *degrees)
+void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
 {
     for (int i = 0; i < n; i++)
     {
@@ -113,7 +125,20 @@ void calc_degrees(int **matrix, int n, int *out_degrees, int *in_degrees, int *d
             {
                 out_degrees[i]++;
                 in_degrees[j]++;
-                degrees[i] += (i == j) ? 2 : 1;
+            }
+        }
+    }
+}
+
+void calc_degrees_undir(int **matrix, int n, int *undir_degrees)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                undir_degrees[i] += (i == j) ? 2 : 1;
             }
         }
     }
@@ -181,5 +206,30 @@ void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cen
         Vector2 origin = {textSize.x / 2.0f, textSize.y / 2.0f};
 
         DrawTextPro(defaultFont, text, textPos, origin, rotation, fontSize, 1.0f, DARKGRAY);
+    }
+}
+
+int calc_regularity(int *degrees, int n)
+{
+    int deg = degrees[0];
+    for (int i = 0; i < n; i++)
+    {
+        if (degrees[i] != deg)
+        {
+            return -1;
+        }
+    }
+    return deg;
+}
+
+void print_regularity(int r_degree, char *graph_name)
+{
+    if (r_degree >= 0)
+    {
+        printf("\n%s graph is regular and it's regularity degree is %d.\n", graph_name, r_degree);
+    }
+    else
+    {
+        printf("\n %s graph is not regular.\n", graph_name);
     }
 }
