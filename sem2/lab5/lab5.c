@@ -30,7 +30,9 @@ int main()
     print_matrix(A_undir, N, "Undirected Graph Matrix");
 
     TraversalState bfs_state;
+    TraversalState dfs_state;
     init_traversal_state(&bfs_state, N);
+    init_traversal_state(&dfs_state, N);
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
@@ -80,6 +82,7 @@ int main()
     destroy_matrix(A_undir, N);
 
     free_traversal_state(&bfs_state);
+    free_traversal_state(&dfs_state);
 
     return 0;
 }
