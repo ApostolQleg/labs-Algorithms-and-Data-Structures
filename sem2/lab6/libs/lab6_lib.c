@@ -149,41 +149,6 @@ void seed_W_matrix(IMatrix *w_matrix, const IMatrix *c_matrix, const IMatrix *d_
     }
 }
 
-EdgeList init_edge_list()
-{
-    EdgeList list = {NULL, 0};
-    return list;
-}
-
-void add_edge(EdgeList *list, int start, int end, int weight)
-{
-    Edge *new_edge = (Edge *)malloc(sizeof(Edge));
-    if (new_edge == NULL)
-        return;
-
-    new_edge->start = start;
-    new_edge->end = end;
-    new_edge->weight = weight;
-
-    new_edge->next = list->head;
-    list->head = new_edge;
-
-    list->size++;
-}
-
-void free_edge_list(EdgeList *list)
-{
-    Edge *current = list->head;
-    while (current != NULL)
-    {
-        Edge *temp = current;
-        current = current->next;
-        free(temp);
-    }
-    list->head = NULL;
-    list->size = 0;
-}
-
 EdgeList convert_w_matrix(const IMatrix *w_matrix)
 {
     EdgeList list = init_edge_list();
@@ -274,29 +239,57 @@ void sort_edge_list(EdgeList *list)
     merge_sort_recursive(&(list->head));
 }
 
-void print_edge_list(const EdgeList *list, const char *title)
+int dsu_find(int *parent, int i)
 {
-    printf("\n%s:\n", title);
+    if (parent[i] == i)
+        return i;
+    return parent[i] = dsu_find(parent, parent[i]);
+}
 
-    if (list == NULL || list->head == NULL)
+void dsu_union(int *parent, int i, int j)
+{
+    int root_i = dsu_find(parent, i);
+    int root_j = dsu_find(parent, j);
+    if (root_i != root_j)
     {
-        printf("Edge list is empty.\n\n");
+        parent[root_i] = root_j;
+    }
+}
+
+KruskalState init_kruskal_state(EdgeList *sorted_edges, int n)
+{
+    KruskalState state;
+    state.sorted_edges = sorted_edges;
+    state.current_edge = sorted_edges->head;
+    state.mst_edges = init_edge_list();
+    state.total_weight = 0;
+    state.finished = false;
+
+    for (int i = 0; i < n; i++)
+    {
+        state.parent[i] = i;
+    }
+    return state;
+}
+
+void kruskal_step(KruskalState *state)
+{
+    if (state->finished || state->current_edge == NULL)
+    {
+        state->finished = true;
         return;
     }
 
-    Edge *current = list->head;
-    int count = 1;
+    int start = state->current_edge->start;
+    int end = state->current_edge->end;
+    int weight = state->current_edge->weight;
 
-    while (current != NULL)
+    if (dsu_find(state->parent, start) != dsu_find(state->parent, end))
     {
-        printf("%3d. Edge (%2d, %2d) | Weight: %d\n",
-               count,
-               current->start + 1,
-               current->end + 1,
-               current->weight);
-
-        current = current->next;
-        count++;
+        dsu_union(state->parent, start, end);
+        add_edge(&state->mst_edges, start, end, weight);
+        state->total_weight += weight;
     }
-    printf("There is %d edges\n\n", list->size);
+
+    state->current_edge = state->current_edge->next;
 }
