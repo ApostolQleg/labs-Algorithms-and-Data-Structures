@@ -61,7 +61,7 @@ void print_double_matrix(const DMatrix *matrix, const char *title)
     }
 }
 
-void seed_ceil_cmatrix(IMatrix *c_matrix, const IMatrix *imatrix, const DMatrix *dmatrix)
+void seed_ceil_matrix(IMatrix *c_matrix, const IMatrix *imatrix, const DMatrix *dmatrix)
 {
     int n = c_matrix->N;
 
@@ -124,5 +124,22 @@ void seed_T_matrix(IMatrix *t_matrix)
             }
         }
         count++;
+    }
+}
+
+void seed_W_matrix(IMatrix *w_matrix, const IMatrix *c_matrix, const IMatrix *d_matrix, const IMatrix *h_matrix, const IMatrix *t_matrix)
+{
+    int n = w_matrix->N;
+
+    if (n == c_matrix->N && n == d_matrix->N && n == h_matrix->N && n == t_matrix->N)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                w_matrix->data[i][j] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
+                w_matrix->data[j][i] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
+            }
+        }
     }
 }
