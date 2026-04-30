@@ -18,21 +18,6 @@ static int get_next_start_node(TraversalState *state, int **matrix)
     return -1;
 }
 
-void init_DFS(TraversalState *state, int **matrix)
-{
-    int start_node = get_next_start_node(state, matrix);
-
-    if (start_node != -1)
-    {
-        state->visited[start_node] = 1;
-        state->queue_stack[state->tail++] = start_node;
-    }
-    else
-    {
-        state->is_finished = true;
-    }
-}
-
 void step_DFS(TraversalState *state, int **matrix)
 {
     if (state->is_finished)

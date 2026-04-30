@@ -25,17 +25,11 @@ int main()
     srand(SEED);
     generate_directed_matrix(A_dir, N, K);
     generate_undirected_matrix(A_dir, A_undir, N);
-
-    print_matrix(A_dir, N, "Directed Graph Matrix");
-    print_matrix(A_undir, N, "Undirected Graph Matrix");
-
+    
     TraversalState bfs_state;
     TraversalState dfs_state;
     init_traversal_state(&bfs_state, N);
     init_traversal_state(&dfs_state, N);
-
-    init_BFS(&bfs_state, A_dir);
-    init_DFS(&dfs_state, A_dir);
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 5 - Graph Traversal (BFS and DFS)");
@@ -93,7 +87,7 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
+        draw_graph_traversal(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir, current_state->visited, current_state->tree_edges);
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
         const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch] [Press 'UP' to start traversal]", trav_titles[curr_trav]);
