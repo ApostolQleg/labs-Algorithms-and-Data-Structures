@@ -4,6 +4,9 @@
 #include "raylib.h"
 #include "graph_lib.h"
 #include "n1_n2_n3_n4.h"
+#include "lab5_BFS.h"
+#include "lab5_DFS.h"
+#include "lab5_state.h"
 
 #define K (1 - (N3 * 0.01) - (N4 * 0.005) - 0.15)
 #define N (10 + N3)
@@ -25,6 +28,9 @@ int main()
 
     print_matrix(A_dir, N, "Directed Graph Matrix");
     print_matrix(A_undir, N, "Undirected Graph Matrix");
+
+    TraversalState bfs_state;
+    init_traversal_state(&bfs_state, N);
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
@@ -69,8 +75,11 @@ int main()
     }
 
     CloseWindow();
+
     destroy_matrix(A_dir, N);
     destroy_matrix(A_undir, N);
+
+    free_traversal_state(&bfs_state);
 
     return 0;
 }
