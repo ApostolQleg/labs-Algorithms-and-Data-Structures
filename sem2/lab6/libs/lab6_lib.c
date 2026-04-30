@@ -92,3 +92,19 @@ void seed_D_matrix(IMatrix *d_matrix, const IMatrix *c_matrix)
         }
     }
 }
+
+void seed_H_matrix(IMatrix *h_matrix, const IMatrix *d_matrix)
+{
+    int n = h_matrix->N;
+
+    if (n == d_matrix->N)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                h_matrix->data[i][j] = (d_matrix->data[i][j] != d_matrix->data[j][i]) ? 1 : 0;
+            }
+        }
+    }
+}

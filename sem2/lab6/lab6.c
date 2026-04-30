@@ -22,6 +22,7 @@ int main()
     DMatrix B = init_dmatrix(GRAPH_N);
     IMatrix C = init_imatrix(GRAPH_N);
     IMatrix D = init_imatrix(GRAPH_N);
+    IMatrix H = init_imatrix(GRAPH_N);
 
     srand(SEED);
 
@@ -29,13 +30,16 @@ int main()
     seed_undirected_matrix(&A_dir, &A);
 
     seed_double_matrix(&B);
-    seed_ceil_cmatrix(&C, &A, &B);
+    seed_ceil_cmatrix(&C, &A, &B); // В методичці так, але тоді зануляється H
+
     seed_D_matrix(&D, &C);
+    seed_H_matrix(&H, &D);
 
     print_matrix(&A, "Undirected Graph Matrix");
     print_double_matrix(&B, "Random Graph Matrix");
     print_matrix(&C, "Ceiled Matrix (c_ij = b_ij * 100 * a_ij)");
     print_matrix(&D, "D Matrix (d_ij = 1 if c_ij > 0 and 0 if c_ij = 0)");
+    print_matrix(&H, "H Matrix (h_ij = 1 if d_ij != d_ji)");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");
