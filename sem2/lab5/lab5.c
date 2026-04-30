@@ -110,16 +110,38 @@ int main()
 
         TraversalState *current_state = (curr_trav == 0) ? current_bfs : current_dfs;
 
+        bool has_started = (current_state->tail > 0 || current_state->is_finished);
+
+        int *pass_visited = has_started ? current_state->visited : NULL;
+        IMatrix *pass_tree_edges = has_started ? &current_state->tree_edges : NULL;
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph_traversal(current_matrix, current_nodes, NODE_RADIUS, center, is_dir, current_state->visited, &current_state->tree_edges);
+        draw_graph_traversal(current_matrix, current_nodes, NODE_RADIUS, center, is_dir, pass_visited, pass_tree_edges);
+
+        if (current_state->current_node != -1 && !current_state->is_finished)
+        {
+            int active_node = current_state->current_node;
+            Vector2 active_pos = current_nodes[active_node];
+
+            DrawCircleLines((int)active_pos.x, (int)active_pos.y, NODE_RADIUS + 6.0f, ORANGE);
+            DrawCircleLines((int)active_pos.x, (int)active_pos.y, NODE_RADIUS + 7.0f, ORANGE);
+            DrawCircleLines((int)active_pos.x, (int)active_pos.y, NODE_RADIUS + 8.0f, RED);
+
+            DrawText("CURRENT", (int)active_pos.x - 30, (int)active_pos.y - NODE_RADIUS - 25, 20, RED);
+        }
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
-        const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch] [Press 'UP' to start traversal]", trav_titles[curr_trav]);
+        const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch] [Press 'UP' to step]", trav_titles[curr_trav]);
 
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
         DrawText(trav_mode, TEXT_SIZE, TEXT_SIZE * 3, TEXT_SIZE / 1.5, GRAY);
+
+        if (current_state->is_finished)
+        {
+            DrawText("TRAVERSAL FINISHED!", TEXT_SIZE, TEXT_SIZE * 5, TEXT_SIZE, MAROON);
+        }
 
         EndDrawing();
     }

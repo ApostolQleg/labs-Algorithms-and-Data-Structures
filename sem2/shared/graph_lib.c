@@ -182,8 +182,14 @@ void draw_graph_traversal(const IMatrix *matrix, Vector2 *nodes, float r_node, V
                     if (pass == 1 && !is_tree_edge)
                         continue;
 
-                    Color edgeColor = is_tree_edge ? BLACK : baseNodeColor;
-                    float line_thickness = is_tree_edge ? 4.0f : 2.0f;
+                    Color edgeColor = baseNodeColor;
+                    float line_thickness = 2.0f;
+
+                    if (tree_edges != NULL)
+                    {
+                        edgeColor = is_tree_edge ? BLACK : LIGHTGRAY;
+                        line_thickness = is_tree_edge ? 4.0f : 2.0f;
+                    }
 
                     if (i != j)
                     {
