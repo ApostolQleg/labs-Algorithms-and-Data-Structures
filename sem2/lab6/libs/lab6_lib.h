@@ -14,7 +14,8 @@ DMatrix init_dmatrix(int n);
 void free_dmatrix(DMatrix *matrix);
 
 void seed_double_matrix(DMatrix *matrix);
-void seed_ceil_cmatrix(IMatrix *cmatrix, const IMatrix *imatrix, const DMatrix *dmatrix);
+void seed_ceil_cmatrix(IMatrix *c_matrix, const IMatrix *imatrix, const DMatrix *dmatrix);
+void seed_D_matrix(IMatrix *d_matrix, const IMatrix *c_matrix);
 
 void print_double_matrix(const DMatrix *matrix, const char *title);
 

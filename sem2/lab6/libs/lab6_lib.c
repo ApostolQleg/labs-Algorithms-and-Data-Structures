@@ -61,9 +61,9 @@ void print_double_matrix(const DMatrix *matrix, const char *title)
     }
 }
 
-void seed_ceil_cmatrix(IMatrix *cmatrix, const IMatrix *imatrix, const DMatrix *dmatrix)
+void seed_ceil_cmatrix(IMatrix *c_matrix, const IMatrix *imatrix, const DMatrix *dmatrix)
 {
-    int n = cmatrix->N;
+    int n = c_matrix->N;
 
     if (n == imatrix->N && n == dmatrix->N)
     {
@@ -71,7 +71,23 @@ void seed_ceil_cmatrix(IMatrix *cmatrix, const IMatrix *imatrix, const DMatrix *
         {
             for (int j = 0; j < n; j++)
             {
-                cmatrix->data[i][j] = (int)ceil(imatrix->data[i][j] * 100 * dmatrix->data[i][j]);
+                c_matrix->data[i][j] = (int)ceil(imatrix->data[i][j] * 100 * dmatrix->data[i][j]);
+            }
+        }
+    }
+}
+
+void seed_D_matrix(IMatrix *d_matrix, const IMatrix *c_matrix)
+{
+    int n = d_matrix->N;
+
+    if (n == c_matrix->N)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                d_matrix->data[i][j] = (c_matrix->data[i][j] > 0) ? 1 : 0;
             }
         }
     }
