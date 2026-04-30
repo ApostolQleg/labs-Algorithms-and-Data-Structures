@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "graph_lib.h"
 #include "n1_n2_n3_n4.h"
+#include "lab6_lib.h"
 
 #define K (1 - (N3 * 0.01) - (N4 * 0.005) - 0.05)
 #define GRAPH_N (10 + N3)
