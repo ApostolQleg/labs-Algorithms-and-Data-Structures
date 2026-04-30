@@ -11,9 +11,9 @@
 int main()
 {
     const int SCREEN_WIDTH = 1600;
-    const int SCREEN_HEIGHT = 900;
-    const int TEXT_SIZE = 20;
-    const float GRAPH_RADIUS = 300.0f;
+    const int SCREEN_HEIGHT = 1200;
+    const int TEXT_SIZE = 30;
+    const float GRAPH_RADIUS = 350.0f;
     const float NODE_RADIUS = 40.0f;
 
     int **A_dir = create_matrix(N);
@@ -30,33 +30,39 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
     SetTargetFPS(60);
 
-    Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
-    Vector2 nodes[N];
-    for (int i = 0; i < N; i++)
-    {
-        float angle = 2.0f * PI * i / N;
-        nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
-        nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
-    }
+    int **show_matrices[2] = {A_dir, A_undir};
+    int show_sizes[2] = {N, N};
+    bool show_is_dir[2] = {true, false};
+    const char *show_titles[2] = {"Directed (K1)", "Undirected (K1)"};
 
-    bool is_dir = true;
-    int **current_matrix = A_dir;
-    const char *title = "Directed Graph [Press 'SPACE' to switch]";
+    int curr = 0;
+    Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_SPACE))
         {
-            is_dir = !is_dir;
-            current_matrix = is_dir ? A_dir : A_undir;
-            title = is_dir ? "Directed Graph [Press 'SPACE' to switch]" : "Undirected Graph [Press 'SPACE' to switch]";
+            curr = (curr + 1) % 2;
+        }
+
+        int current_n = show_sizes[curr];
+        int **current_matrix = show_matrices[curr];
+        bool is_dir = show_is_dir[curr];
+
+        Vector2 current_nodes[current_n];
+        for (int i = 0; i < current_n; i++)
+        {
+            float angle = 2.0f * PI * i / current_n;
+            current_nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
+            current_nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
         }
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph(current_matrix, nodes, N, NODE_RADIUS, center, is_dir);
+        draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
 
+        const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
 
         EndDrawing();
