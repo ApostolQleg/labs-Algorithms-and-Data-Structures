@@ -96,7 +96,7 @@ int main()
         draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
-        const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch]", trav_titles[curr_trav]);
+        const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch] [Press 'UP' to start traversal]", trav_titles[curr_trav]);
 
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
         DrawText(trav_mode, TEXT_SIZE, TEXT_SIZE * 3, TEXT_SIZE / 1.5, GRAY);
