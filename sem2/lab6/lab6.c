@@ -17,19 +17,23 @@ int main()
     const float NODE_RADIUS = 40.0f;
 
     int **A_dir = create_matrix(N);
-    int **A_undir = create_matrix(N);
+    int **A = create_matrix(N);
+    double **B = create_double_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
-    generate_undirected_matrix(A_dir, A_undir, N);
+    seed_directed_matrix(A_dir, N, K);
+    seed_undirected_matrix(A_dir, A, N);
 
-    print_matrix(A_undir, N, "Undirected Graph Matrix");
+    seed_double_matrix(B, N);
+
+    print_matrix(A, N, "Undirected Graph Matrix");
+    print_double_matrix(B, N, "Random Graph Matrix");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");
     SetTargetFPS(60);
 
-    int **show_matrices[2] = {A_undir, A_undir};
+    int **show_matrices[2] = {A, A};
     int show_sizes[2] = {N, N};
     bool show_is_dir[2] = {false, false};
     const char *show_titles[2] = {"Undirected", "Undirected"};
@@ -70,7 +74,8 @@ int main()
     CloseWindow();
 
     destroy_matrix(A_dir, N);
-    destroy_matrix(A_undir, N);
+    destroy_matrix(A, N);
+    destroy_double_matrix(B, N);
 
     return 0;
 }
