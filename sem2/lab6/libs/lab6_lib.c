@@ -55,8 +55,24 @@ void print_double_matrix(const DMatrix *matrix, const char *title)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%.3f ", matrix->data[i][j]);
+            printf("%.1f ", matrix->data[i][j]);
         }
         printf("\n\n");
+    }
+}
+
+void seed_ceil_cmatrix(IMatrix *cmatrix, const IMatrix *imatrix, const DMatrix *dmatrix)
+{
+    int n = cmatrix->N;
+
+    if (n == imatrix->N && n == dmatrix->N)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                cmatrix->data[i][j] = (int)ceil(imatrix->data[i][j] * 100 * dmatrix->data[i][j]);
+            }
+        }
     }
 }
