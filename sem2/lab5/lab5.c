@@ -23,8 +23,8 @@ int main()
     int **A_undir = create_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
-    generate_undirected_matrix(A_dir, A_undir, N);
+    seed_directed_matrix(A_dir, N, K);
+    seed_undirected_matrix(A_dir, A_undir, N);
 
     TraversalState bfs_states[2];
     TraversalState dfs_states[2];

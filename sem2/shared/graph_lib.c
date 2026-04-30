@@ -30,6 +30,28 @@ void destroy_matrix(int **matrix, int n)
     free(matrix);
 }
 
+double **create_double_matrix(int n)
+{
+    double **matrix = (double **)calloc(n, sizeof(double *));
+    for (int i = 0; i < n; i++)
+    {
+        matrix[i] = (double *)calloc(n, sizeof(double));
+    }
+    return matrix;
+}
+
+void destroy_double_matrix(double **matrix, int n)
+{
+    if (matrix == NULL)
+        return;
+
+    for (int i = 0; i < n; i++)
+    {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
 double randm()
 {
     return ((double)rand() / RAND_MAX) * 2.0;
@@ -40,28 +62,39 @@ int mulmr(double value, double k)
     return (value * k >= 1.0) ? 1 : 0;
 }
 
-void generate_directed_matrix(int **A_dir, int n, double k)
+void seed_directed_matrix(int **matrix_dir, int n, double k)
 {
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
             double T = randm();
-            A_dir[i][j] = mulmr(T, k);
+            matrix_dir[i][j] = mulmr(T, k);
         }
     }
 }
 
-void generate_undirected_matrix(int **A_dir, int **A_undir, int n)
+void seed_undirected_matrix(int **matrix_dir, int **matrix_undir, int n)
 {
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (A_dir[i][j] == 1)
+            if (matrix_dir[i][j] == 1)
             {
-                A_undir[i][j] = A_undir[j][i] = 1;
+                matrix_undir[i][j] = matrix_undir[j][i] = 1;
             }
+        }
+    }
+}
+
+void seed_double_matrix(double **matrix, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            matrix[i][j] = randm();
         }
     }
 }
@@ -74,6 +107,19 @@ void print_matrix(int **matrix, int n, const char *title)
         for (int j = 0; j < n; j++)
         {
             printf("%3d ", matrix[i][j]);
+        }
+        printf("\n\n");
+    }
+}
+
+void print_double_matrix(double **matrix, int n, const char *title)
+{
+    printf("\n%s:\n", title);
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            printf("%.3f ", matrix[i][j]);
         }
         printf("\n\n");
     }

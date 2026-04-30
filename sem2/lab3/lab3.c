@@ -20,8 +20,8 @@ int main()
     int **A_undir = create_matrix(N);
 
     srand(SEED);
-    generate_directed_matrix(A_dir, N, K);
-    generate_undirected_matrix(A_dir, A_undir, N);
+    seed_directed_matrix(A_dir, N, K);
+    seed_undirected_matrix(A_dir, A_undir, N);
 
     print_matrix(A_dir, N, "Directed Graph Matrix");
     print_matrix(A_undir, N, "Undirected Graph Matrix");
@@ -69,7 +69,7 @@ int main()
     }
 
     CloseWindow();
-    
+
     destroy_matrix(A_dir, N);
     destroy_matrix(A_undir, N);
 

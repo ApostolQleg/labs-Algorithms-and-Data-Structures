@@ -28,10 +28,10 @@ int main()
     int **B_dir = create_matrix(N);
     int **B_undir = create_matrix(N);
 
-    generate_directed_matrix(A_dir, N, K1);
-    generate_undirected_matrix(A_dir, A_undir, N);
-    generate_directed_matrix(B_dir, N, K2);
-    generate_undirected_matrix(B_dir, B_undir, N);
+    seed_directed_matrix(A_dir, N, K1);
+    seed_undirected_matrix(A_dir, A_undir, N);
+    seed_directed_matrix(B_dir, N, K2);
+    seed_undirected_matrix(B_dir, B_undir, N);
 
     print_matrix(A_dir, N, "Directed Graph matrix (K1)");
     print_matrix(A_undir, N, "Undirected Graph matrix (K1)");
