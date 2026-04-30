@@ -25,11 +25,16 @@ int main()
     srand(SEED);
     generate_directed_matrix(A_dir, N, K);
     generate_undirected_matrix(A_dir, A_undir, N);
-    
+
     TraversalState bfs_state;
     TraversalState dfs_state;
     init_traversal_state(&bfs_state, N);
     init_traversal_state(&dfs_state, N);
+
+    TraversalHistory bfs_history;
+    TraversalHistory dfs_history;
+    init_history(&bfs_history);
+    init_history(&dfs_history);
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 5 - Graph Traversal (BFS and DFS)");
@@ -66,11 +71,25 @@ int main()
         {
             if (curr_trav == 0 && !bfs_state.is_finished)
             {
+                save_state(&bfs_history, &bfs_state);
                 step_BFS(&bfs_state, current_matrix);
             }
             else if (curr_trav == 1 && !dfs_state.is_finished)
             {
+                save_state(&dfs_history, &dfs_state);
                 step_DFS(&dfs_state, current_matrix);
+            }
+        }
+
+        if (IsKeyPressed(KEY_DOWN))
+        {
+            if (curr_trav == 0)
+            {
+                undo_state(&bfs_history, &bfs_state);
+            }
+            else if (curr_trav == 1)
+            {
+                undo_state(&dfs_history, &dfs_state);
             }
         }
 
@@ -105,6 +124,9 @@ int main()
 
     free_traversal_state(&bfs_state);
     free_traversal_state(&dfs_state);
+
+    free_history(&bfs_history);
+    free_history(&dfs_history);
 
     return 0;
 }
