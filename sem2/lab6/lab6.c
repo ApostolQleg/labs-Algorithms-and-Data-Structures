@@ -5,7 +5,7 @@
 #include "graph_lib.h"
 #include "n1_n2_n3_n4.h"
 
-#define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
+#define K (1 - (N3 * 0.01) - (N4 * 0.005) - 0.05)
 #define N (10 + N3)
 
 int main()
@@ -23,17 +23,16 @@ int main()
     generate_directed_matrix(A_dir, N, K);
     generate_undirected_matrix(A_dir, A_undir, N);
 
-    print_matrix(A_dir, N, "Directed Graph Matrix");
     print_matrix(A_undir, N, "Undirected Graph Matrix");
 
     SetTraceLogLevel(LOG_NONE);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");
     SetTargetFPS(60);
 
-    int **show_matrices[2] = {A_dir, A_undir};
+    int **show_matrices[2] = {A_undir, A_undir};
     int show_sizes[2] = {N, N};
-    bool show_is_dir[2] = {true, false};
-    const char *show_titles[2] = {"Directed", "Undirected"};
+    bool show_is_dir[2] = {false, false};
+    const char *show_titles[2] = {"Undirected", "Undirected"};
 
     int curr = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
@@ -69,7 +68,7 @@ int main()
     }
 
     CloseWindow();
-    
+
     destroy_matrix(A_dir, N);
     destroy_matrix(A_undir, N);
 
