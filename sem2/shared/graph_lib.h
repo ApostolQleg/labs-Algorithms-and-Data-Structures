@@ -13,5 +13,6 @@ void generate_undirected_matrix(int **matrix_directed, int **matrix_to_change, i
 void print_matrix(int **matrix, int n, const char *title);
 void draw_arrow(Vector2 target, float angle, float arrow_length, Color color);
 void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed);
+void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed, int *visited, int **tree_edges);
 
 #endif

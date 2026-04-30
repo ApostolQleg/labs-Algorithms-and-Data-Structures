@@ -128,8 +128,12 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow,
         draw_arrow(target2, angle2, arrow_length, color);
     }
 }
-
 void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed)
+{
+    draw_graph_traversal(matrix, nodes, n, r_node, center, is_directed, NULL, NULL);
+}
+
+void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed, int *visited, int **tree_edges)
 {
     float arrow_length = r_node * 0.5f;
     float node_padding = r_node * 0.05f;
@@ -138,13 +142,20 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
 
     for (int i = 0; i < n; i++)
     {
-        Color nodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
+        Color baseNodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
+
         for (int j = 0; j < n; j++)
         {
             if (matrix[i][j] == 1)
             {
                 if (!is_directed && j < i)
                     continue;
+
+                Color edgeColor = baseNodeColor;
+                if (tree_edges != NULL && tree_edges[i][j] == 1)
+                {
+                    edgeColor = BLACK;
+                }
 
                 if (i != j)
                 {
@@ -163,7 +174,7 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
                         mid.x + normal.x * current_bend,
                         mid.y + normal.y * current_bend};
 
-                    DrawSplineSegmentBezierQuadratic(start, control, end, 2.0f, nodeColor);
+                    DrawSplineSegmentBezierQuadratic(start, control, end, 2.0f, edgeColor);
 
                     if (is_directed)
                     {
@@ -195,12 +206,12 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
                             2.0f * (1.0f - t) * (control.y - start.y) + 2.0f * t * (end.y - control.y)};
                         float angle = atan2f(tangent.y, tangent.x);
 
-                        draw_arrow(target, angle, arrow_length, nodeColor);
+                        draw_arrow(target, angle, arrow_length, edgeColor);
                     }
                 }
                 else
                 {
-                    draw_self_loop(nodes[i], center, r_node, is_directed, nodeColor);
+                    draw_self_loop(nodes[i], center, r_node, is_directed, edgeColor);
                 }
             }
         }
@@ -211,6 +222,11 @@ void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cente
     for (int i = 0; i < n; i++)
     {
         Color nodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
+
+        if (visited != NULL && visited[i] == 1)
+        {
+            nodeColor = BLACK;
+        }
 
         DrawCircleV(nodes[i], r_node, nodeColor);
 
