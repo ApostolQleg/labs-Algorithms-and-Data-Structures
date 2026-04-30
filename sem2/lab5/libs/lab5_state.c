@@ -8,7 +8,7 @@ void init_traversal_state(TraversalState *state, int n)
     state->visited = (int *)calloc(n, sizeof(int));
     state->queue_stack = (int *)calloc(n, sizeof(int));
 
-    state->tree_edges = create_matrix(n);
+    state->tree_edges = init_imatrix(n);
 
     state->head = 0;
     state->tail = 0;
@@ -26,9 +26,9 @@ void free_traversal_state(TraversalState *state)
     {
         free(state->queue_stack);
     }
-    if (state->tree_edges != NULL)
+    if (state->tree_edges.data != NULL)
     {
-        destroy_matrix(state->tree_edges, state->n);
+        free_imatrix(&state->tree_edges);
     }
 }
 
@@ -50,7 +50,7 @@ void copy_traversal_state(TraversalState *dest, const TraversalState *src)
 
     for (int i = 0; i < src->n; i++)
     {
-        memcpy(dest->tree_edges[i], src->tree_edges[i], src->n * sizeof(int));
+        memcpy(dest->tree_edges.data[i], src->tree_edges.data[i], src->n * sizeof(int));
     }
 }
 
@@ -60,6 +60,9 @@ void init_history(TraversalHistory *history)
     for (int i = 0; i < MAX_HISTORY; i++)
     {
         history->snapshots[i].visited = NULL;
+        history->snapshots[i].queue_stack = NULL;
+        history->snapshots[i].tree_edges.N = 0;
+        history->snapshots[i].tree_edges.data = NULL;
     }
 }
 

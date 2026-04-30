@@ -11,7 +11,7 @@ typedef struct
 {
     int n;
     int *visited;
-    int **tree_edges;
+    IMatrix tree_edges;
     int *queue_stack;
     int head;
     int tail;

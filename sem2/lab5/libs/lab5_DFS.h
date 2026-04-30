@@ -3,6 +3,6 @@
 
 #include "lab5_state.h"
 
-void step_DFS(TraversalState *state, int **matrix);
+void step_DFS(TraversalState *state, const IMatrix *matrix);
 
 #endif

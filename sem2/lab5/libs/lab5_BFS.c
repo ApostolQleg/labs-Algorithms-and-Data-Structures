@@ -1,6 +1,6 @@
 #include "lab5_BFS.h"
 
-static int get_next_start_node(TraversalState *state, int **matrix)
+static int get_next_start_node(TraversalState *state, const IMatrix *matrix)
 {
     for (int i = 0; i < state->n; i++)
     {
@@ -8,7 +8,7 @@ static int get_next_start_node(TraversalState *state, int **matrix)
         {
             for (int j = 0; j < state->n; j++)
             {
-                if (matrix[i][j] > 0)
+                if (matrix->data[i][j] > 0)
                 {
                     return i;
                 }
@@ -18,7 +18,7 @@ static int get_next_start_node(TraversalState *state, int **matrix)
     return -1;
 }
 
-void step_BFS(TraversalState *state, int **matrix)
+void step_BFS(TraversalState *state, const IMatrix *matrix)
 {
     if (state->is_finished)
         return;
@@ -30,10 +30,10 @@ void step_BFS(TraversalState *state, int **matrix)
 
         for (int i = 0; i < state->n; i++)
         {
-            if (matrix[current][i] > 0 && state->visited[i] == 0)
+            if (matrix->data[current][i] > 0 && state->visited[i] == 0)
             {
                 state->visited[i] = 1;
-                state->tree_edges[current][i] = 1;
+                state->tree_edges.data[current][i] = 1;
                 state->queue_stack[state->tail++] = i;
             }
         }

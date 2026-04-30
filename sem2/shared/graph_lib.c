@@ -8,48 +8,62 @@
 #define LOOP_RADIUS_FACTOR 1.25f
 #define LOOP_ARROW_OFFSET (PI / 4.5f)
 
-int **create_matrix(int n)
+IMatrix init_imatrix(int n)
 {
-    int **matrix = (int **)calloc(n, sizeof(int *));
+    IMatrix matrix = {0};
+    matrix.N = n;
+    matrix.data = (int **)calloc(n, sizeof(int *));
+
     for (int i = 0; i < n; i++)
     {
-        matrix[i] = (int *)calloc(n, sizeof(int));
+        matrix.data[i] = (int *)calloc(n, sizeof(int));
     }
+
     return matrix;
 }
 
-void destroy_matrix(int **matrix, int n)
+void free_imatrix(IMatrix *matrix)
 {
-    if (matrix == NULL)
+    if (matrix == NULL || matrix->data == NULL)
         return;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < matrix->N; i++)
     {
-        free(matrix[i]);
+        free(matrix->data[i]);
     }
-    free(matrix);
+
+    free(matrix->data);
+    matrix->data = NULL;
+    matrix->N = 0;
 }
 
-double **create_double_matrix(int n)
+DMatrix init_dmatrix(int n)
 {
-    double **matrix = (double **)calloc(n, sizeof(double *));
+    DMatrix matrix = {0};
+    matrix.N = n;
+    matrix.data = (double **)calloc(n, sizeof(double *));
+
     for (int i = 0; i < n; i++)
     {
-        matrix[i] = (double *)calloc(n, sizeof(double));
+        matrix.data[i] = (double *)calloc(n, sizeof(double));
     }
+
     return matrix;
 }
 
-void destroy_double_matrix(double **matrix, int n)
+void free_dmatrix(DMatrix *matrix)
 {
-    if (matrix == NULL)
+    if (matrix == NULL || matrix->data == NULL)
         return;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < matrix->N; i++)
     {
-        free(matrix[i]);
+        free(matrix->data[i]);
     }
-    free(matrix);
+
+    free(matrix->data);
+    matrix->data = NULL;
+    matrix->N = 0;
 }
 
 double randm()
@@ -62,64 +76,74 @@ int mulmr(double value, double k)
     return (value * k >= 1.0) ? 1 : 0;
 }
 
-void seed_directed_matrix(int **matrix_dir, int n, double k)
+void seed_directed_matrix(IMatrix *matrix_dir, double k)
 {
+    int n = matrix_dir->N;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
             double T = randm();
-            matrix_dir[i][j] = mulmr(T, k);
+            matrix_dir->data[i][j] = mulmr(T, k);
         }
     }
 }
 
-void seed_undirected_matrix(int **matrix_dir, int **matrix_undir, int n)
+void seed_undirected_matrix(const IMatrix *matrix_dir, IMatrix *matrix_undir)
 {
+    int n = matrix_dir->N;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (matrix_dir[i][j] == 1)
+            if (matrix_dir->data[i][j] == 1)
             {
-                matrix_undir[i][j] = matrix_undir[j][i] = 1;
+                matrix_undir->data[i][j] = matrix_undir->data[j][i] = 1;
             }
         }
     }
 }
 
-void seed_double_matrix(double **matrix, int n)
+void seed_double_matrix(DMatrix *matrix)
 {
+    int n = matrix->N;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            matrix[i][j] = randm();
+            matrix->data[i][j] = randm();
         }
     }
 }
 
-void print_matrix(int **matrix, int n, const char *title)
+void print_matrix(const IMatrix *matrix, const char *title)
 {
+    int n = matrix->N;
+
     printf("\n%s:\n", title);
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%3d ", matrix[i][j]);
+            printf("%3d ", matrix->data[i][j]);
         }
         printf("\n\n");
     }
 }
 
-void print_double_matrix(double **matrix, int n, const char *title)
+void print_double_matrix(const DMatrix *matrix, const char *title)
 {
+    int n = matrix->N;
+
     printf("\n%s:\n", title);
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%.3f ", matrix[i][j]);
+            printf("%.3f ", matrix->data[i][j]);
         }
         printf("\n\n");
     }
@@ -174,13 +198,14 @@ void draw_self_loop(Vector2 node, Vector2 center, float r_node, bool show_arrow,
         draw_arrow(target2, angle2, arrow_length, color);
     }
 }
-void draw_graph(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed)
+void draw_graph(const IMatrix *matrix, Vector2 *nodes, float r_node, Vector2 center, bool is_directed)
 {
-    draw_graph_traversal(matrix, nodes, n, r_node, center, is_directed, NULL, NULL);
+    draw_graph_traversal(matrix, nodes, r_node, center, is_directed, NULL, NULL);
 }
 
-void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_directed, int *visited, int **tree_edges)
+void draw_graph_traversal(const IMatrix *matrix, Vector2 *nodes, float r_node, Vector2 center, bool is_directed, int *visited, const IMatrix *tree_edges)
 {
+    int n = matrix->N;
     float arrow_length = r_node * 0.5f;
     float node_padding = r_node * 0.05f;
     float curvature = 15.0f;
@@ -194,7 +219,7 @@ void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vec
 
             for (int j = 0; j < n; j++)
             {
-                if (matrix[i][j] == 1)
+                if (matrix->data[i][j] == 1)
                 {
                     if (!is_directed && j < i)
                         continue;
@@ -202,8 +227,8 @@ void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vec
                     bool is_tree_edge = false;
                     if (tree_edges != NULL)
                     {
-                        is_tree_edge = (tree_edges[i][j] == 1);
-                        if (!is_directed && tree_edges[j][i] == 1)
+                        is_tree_edge = (tree_edges->data[i][j] == 1);
+                        if (!is_directed && tree_edges->data[j][i] == 1)
                         {
                             is_tree_edge = true;
                         }

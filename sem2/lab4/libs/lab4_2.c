@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include "lab4_2.h"
-#include "graph_lib.h"
 
-int **multiply_matrices(int **matrix_1, int **matrix_2, int n)
+IMatrix multiply_matrices(const IMatrix *matrix_1, const IMatrix *matrix_2)
 {
-    int **matrix = create_matrix(n);
+    int n = matrix_1->N;
+    IMatrix matrix = init_imatrix(n);
 
     for (int i = 0; i < n; i++)
     {
@@ -14,22 +14,23 @@ int **multiply_matrices(int **matrix_1, int **matrix_2, int n)
         {
             for (int k = 0; k < n; k++)
             {
-                matrix[i][j] += matrix_1[i][k] * matrix_2[k][j];
+                matrix.data[i][j] += matrix_1->data[i][k] * matrix_2->data[k][j];
             }
         }
     }
     return matrix;
 }
 
-int **create_reach_matrix(int **matrix, int n)
+IMatrix create_reach_matrix(const IMatrix *matrix)
 {
-    int **r_matrix = create_matrix(n);
+    int n = matrix->N;
+    IMatrix r_matrix = init_imatrix(n);
 
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            r_matrix[i][j] = (matrix[i][j] != 0) || (i == j);
+            r_matrix.data[i][j] = (matrix->data[i][j] != 0) || (i == j);
         }
     }
 
@@ -39,7 +40,7 @@ int **create_reach_matrix(int **matrix, int n)
         {
             for (int j = 0; j < n; j++)
             {
-                r_matrix[i][j] = r_matrix[i][j] || (r_matrix[i][k] && r_matrix[k][j]);
+                r_matrix.data[i][j] = r_matrix.data[i][j] || (r_matrix.data[i][k] && r_matrix.data[k][j]);
             }
         }
     }
@@ -47,22 +48,24 @@ int **create_reach_matrix(int **matrix, int n)
     return r_matrix;
 }
 
-int **create_strong_connect_matrix(int **r_matrix, int n)
+IMatrix create_strong_connect_matrix(const IMatrix *r_matrix)
 {
-    int **s_matrix = create_matrix(n);
+    int n = r_matrix->N;
+    IMatrix s_matrix = init_imatrix(n);
 
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            s_matrix[i][j] = r_matrix[i][j] && r_matrix[j][i];
+            s_matrix.data[i][j] = r_matrix->data[i][j] && r_matrix->data[j][i];
         }
     }
     return s_matrix;
 }
 
-void print_strong_groups(int **s_matrix, int n, char *graph_name)
+void print_strong_groups(const IMatrix *s_matrix, char *graph_name)
 {
+    int n = s_matrix->N;
     int *visited = (int *)calloc(n, sizeof(int));
     int count = 0;
 
@@ -78,7 +81,7 @@ void print_strong_groups(int **s_matrix, int n, char *graph_name)
 
             for (int j = i + 1; j < n; j++)
             {
-                if (s_matrix[i][j] == 1)
+                if (s_matrix->data[i][j] == 1)
                 {
                     printf(", %d", j + 1);
                     visited[j] = 1;
@@ -91,8 +94,9 @@ void print_strong_groups(int **s_matrix, int n, char *graph_name)
     free(visited);
 }
 
-int **create_condensation_matrix(int **matrix, int **s_matrix, int n, int *count, int *groups)
+IMatrix create_condensation_matrix(const IMatrix *matrix, const IMatrix *s_matrix, int *count, int *groups)
 {
+    int n = matrix->N;
     int *visited = (int *)calloc(n, sizeof(int));
     int comp_id = 0;
 
@@ -105,7 +109,7 @@ int **create_condensation_matrix(int **matrix, int **s_matrix, int n, int *count
 
             for (int j = i + 1; j < n; j++)
             {
-                if (s_matrix[i][j] == 1)
+                if (s_matrix->data[i][j] == 1)
                 {
                     groups[j] = comp_id;
                     visited[j] = 1;
@@ -118,20 +122,20 @@ int **create_condensation_matrix(int **matrix, int **s_matrix, int n, int *count
 
     *count = comp_id;
 
-    int **cond_matrix = create_matrix(comp_id);
+    IMatrix cond_matrix = init_imatrix(comp_id);
 
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (matrix[i][j] == 1)
+            if (matrix->data[i][j] == 1)
             {
                 int comp_i = groups[i];
                 int comp_j = groups[j];
 
                 if (comp_i != comp_j)
                 {
-                    cond_matrix[comp_i][comp_j] = 1;
+                    cond_matrix.data[comp_i][comp_j] = 1;
                 }
             }
         }

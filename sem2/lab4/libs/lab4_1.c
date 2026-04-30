@@ -3,13 +3,15 @@
 #include <math.h>
 #include "lab4_1.h"
 
-void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
+void calc_degrees_dir(const IMatrix *matrix, int *out_degrees, int *in_degrees)
 {
+    int n = matrix->N;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (matrix[i][j] == 1)
+            if (matrix->data[i][j] == 1)
             {
                 out_degrees[i]++;
                 in_degrees[j]++;
@@ -18,13 +20,15 @@ void calc_degrees_dir(int **matrix, int n, int *out_degrees, int *in_degrees)
     }
 }
 
-void calc_degrees_undir(int **matrix, int n, int *undir_degrees)
+void calc_degrees_undir(const IMatrix *matrix, int *undir_degrees)
 {
+    int n = matrix->N;
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (matrix[i][j] == 1)
+            if (matrix->data[i][j] == 1)
             {
                 undir_degrees[i] += (i == j) ? 2 : 1;
             }
@@ -41,8 +45,9 @@ void print_degrees(int *degrees, int n, char *message)
     }
 }
 
-void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 center, bool is_dir)
+void draw_degrees(const IMatrix *matrix, Vector2 *nodes, float r_node, Vector2 center, bool is_dir)
 {
+    int n = matrix->N;
     int fontSize = (int)(r_node * 0.75f);
     float offset = r_node * 2.75f;
 
@@ -54,12 +59,12 @@ void draw_degrees(int **matrix, Vector2 *nodes, int n, float r_node, Vector2 cen
 
         for (int j = 0; j < n; j++)
         {
-            if (matrix[i][j] == 1)
+            if (matrix->data[i][j] == 1)
             {
                 out_deg++;
                 deg += (i == j) ? 2 : 1;
             }
-            if (matrix[j][i] == 1)
+            if (matrix->data[j][i] == 1)
                 in_deg++;
         }
 

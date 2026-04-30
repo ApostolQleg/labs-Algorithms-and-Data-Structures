@@ -6,7 +6,7 @@
 #include "n1_n2_n3_n4.h"
 
 #define K (1 - (N3 * 0.02) - (N4 * 0.005) - 0.25)
-#define N (10 + N3)
+#define GRAPH_N (10 + N3)
 
 int main()
 {
@@ -16,22 +16,22 @@ int main()
     const float GRAPH_RADIUS = 350.0f;
     const float NODE_RADIUS = 40.0f;
 
-    int **A_dir = create_matrix(N);
-    int **A_undir = create_matrix(N);
+    IMatrix A_dir = init_imatrix(GRAPH_N);
+    IMatrix A_undir = init_imatrix(GRAPH_N);
 
     srand(SEED);
-    seed_directed_matrix(A_dir, N, K);
-    seed_undirected_matrix(A_dir, A_undir, N);
 
-    print_matrix(A_dir, N, "Directed Graph Matrix");
-    print_matrix(A_undir, N, "Undirected Graph Matrix");
+    seed_directed_matrix(&A_dir, K);
+    seed_undirected_matrix(&A_dir, &A_undir);
+
+    print_matrix(&A_dir, "Directed Graph Matrix");
+    print_matrix(&A_undir, "Undirected Graph Matrix");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
     SetTargetFPS(60);
 
-    int **show_matrices[2] = {A_dir, A_undir};
-    int show_sizes[2] = {N, N};
+    IMatrix *show_matrices[2] = {&A_dir, &A_undir};
     bool show_is_dir[2] = {true, false};
     const char *show_titles[2] = {"Directed", "Undirected"};
 
@@ -45,8 +45,8 @@ int main()
             curr = (curr + 1) % 2;
         }
 
-        int current_n = show_sizes[curr];
-        int **current_matrix = show_matrices[curr];
+        IMatrix *current_matrix = show_matrices[curr];
+        int current_n = current_matrix->N;
         bool is_dir = show_is_dir[curr];
 
         Vector2 current_nodes[current_n];
@@ -60,7 +60,7 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
+        draw_graph(current_matrix, current_nodes, NODE_RADIUS, center, is_dir);
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
@@ -70,8 +70,8 @@ int main()
 
     CloseWindow();
 
-    destroy_matrix(A_dir, N);
-    destroy_matrix(A_undir, N);
+    free_imatrix(&A_dir);
+    free_imatrix(&A_undir);
 
     return 0;
 }

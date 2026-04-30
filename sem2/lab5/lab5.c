@@ -9,7 +9,7 @@
 #include "lab5_state.h"
 
 #define K (1 - (N3 * 0.01) - (N4 * 0.005) - 0.15)
-#define N (10 + N3)
+#define GRAPH_N (10 + N3)
 
 int main()
 {
@@ -19,12 +19,12 @@ int main()
     const float GRAPH_RADIUS = 350.0f;
     const float NODE_RADIUS = 40.0f;
 
-    int **A_dir = create_matrix(N);
-    int **A_undir = create_matrix(N);
+    IMatrix A_dir = init_imatrix(GRAPH_N);
+    IMatrix A_undir = init_imatrix(GRAPH_N);
 
     srand(SEED);
-    seed_directed_matrix(A_dir, N, K);
-    seed_undirected_matrix(A_dir, A_undir, N);
+    seed_directed_matrix(&A_dir, K);
+    seed_undirected_matrix(&A_dir, &A_undir);
 
     TraversalState bfs_states[2];
     TraversalState dfs_states[2];
@@ -33,8 +33,8 @@ int main()
 
     for (int i = 0; i < 2; i++)
     {
-        init_traversal_state(&bfs_states[i], N);
-        init_traversal_state(&dfs_states[i], N);
+        init_traversal_state(&bfs_states[i], GRAPH_N);
+        init_traversal_state(&dfs_states[i], GRAPH_N);
         init_history(&bfs_histories[i]);
         init_history(&dfs_histories[i]);
     }
@@ -43,8 +43,7 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 5 - Graph Traversal (BFS and DFS)");
     SetTargetFPS(60);
 
-    int **show_matrices[2] = {A_dir, A_undir};
-    int show_sizes[2] = {N, N};
+    IMatrix *show_matrices[2] = {&A_dir, &A_undir};
     bool show_is_dir[2] = {true, false};
     const char *show_titles[2] = {"Directed", "Undirected"};
 
@@ -66,8 +65,8 @@ int main()
         TraversalHistory *current_bfs_hist = &bfs_histories[curr];
         TraversalHistory *current_dfs_hist = &dfs_histories[curr];
 
-        int current_n = show_sizes[curr];
-        int **current_matrix = show_matrices[curr];
+        IMatrix *current_matrix = show_matrices[curr];
+        int current_n = current_matrix->N;
         bool is_dir = show_is_dir[curr];
 
         if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_LEFT))
@@ -114,7 +113,7 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_graph_traversal(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir, current_state->visited, current_state->tree_edges);
+        draw_graph_traversal(current_matrix, current_nodes, NODE_RADIUS, center, is_dir, current_state->visited, &current_state->tree_edges);
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
         const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch] [Press 'UP' to start traversal]", trav_titles[curr_trav]);
@@ -127,8 +126,8 @@ int main()
 
     CloseWindow();
 
-    destroy_matrix(A_dir, N);
-    destroy_matrix(A_undir, N);
+    free_imatrix(&A_dir);
+    free_imatrix(&A_undir);
 
     for (int i = 0; i < 2; i++)
     {
