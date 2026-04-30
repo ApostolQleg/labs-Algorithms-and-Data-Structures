@@ -42,9 +42,9 @@ int main()
     print_matrix(&A, "Undirected Graph Matrix");
     print_double_matrix(&B, "Random Graph Matrix");
 
-    print_matrix(&C, "Ceiled Matrix (c_ij = b_ij * 100 * a_ij)");
-    print_matrix(&D, "D Matrix (d_ij = 1 if c_ij > 0 and 0 if c_ij = 0)");
-    print_matrix(&H, "H Matrix (h_ij = 1 if d_ij != d_ji)");
+    print_matrix(&C, "Ceiled Matrix");
+    print_matrix(&D, "D Matrix");
+    print_matrix(&H, "H Matrix");
     print_matrix(&T, "Upper Trianglular Matrix");
     print_matrix(&W, "Weighted Graph Matrix");
 
@@ -95,6 +95,10 @@ int main()
     free_imatrix(&A);
     free_dmatrix(&B);
     free_imatrix(&C);
+    free_imatrix(&D);
+    free_imatrix(&H);
+    free_imatrix(&T);
+    free_imatrix(&W);
 
     return 0;
 }

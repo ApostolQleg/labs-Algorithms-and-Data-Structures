@@ -104,6 +104,10 @@ void seed_H_matrix(IMatrix *h_matrix, const IMatrix *d_matrix)
             for (int j = 0; j < n; j++)
             {
                 h_matrix->data[i][j] = (d_matrix->data[i][j] != d_matrix->data[j][i]) ? 1 : 0;
+                if (h_matrix->data[i][j] == 0 && ((double)rand() / RAND_MAX) < 0.25f)
+                {
+                    h_matrix->data[i][j] = 1; // генерація кількох випадкових одиниць
+                }
             }
         }
     }
@@ -135,8 +139,11 @@ void seed_W_matrix(IMatrix *w_matrix, const IMatrix *c_matrix, const IMatrix *d_
         {
             for (int j = 0; j < n; j++)
             {
-                w_matrix->data[i][j] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
-                w_matrix->data[j][i] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
+                if (i < j)
+                {
+                    w_matrix->data[i][j] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
+                    w_matrix->data[j][i] = (d_matrix->data[i][j] + h_matrix->data[i][j] * t_matrix->data[i][j]) * c_matrix->data[i][j];
+                }
             }
         }
     }
