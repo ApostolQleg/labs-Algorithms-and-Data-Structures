@@ -18,6 +18,7 @@ void seed_ceil_cmatrix(IMatrix *c_matrix, const IMatrix *imatrix, const DMatrix 
 
 void seed_D_matrix(IMatrix *d_matrix, const IMatrix *c_matrix);
 void seed_H_matrix(IMatrix *h_matrix, const IMatrix *d_matrix);
+void seed_T_matrix(IMatrix *t_matrix);
 
 void print_double_matrix(const DMatrix *matrix, const char *title);
 
