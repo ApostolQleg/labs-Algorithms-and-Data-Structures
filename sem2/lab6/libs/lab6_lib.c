@@ -112,18 +112,16 @@ void seed_H_matrix(IMatrix *h_matrix, const IMatrix *d_matrix)
 void seed_T_matrix(IMatrix *t_matrix)
 {
     int n = t_matrix->N;
-    int count = 0;
 
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            if (j >= count)
+            if (i < j)
             {
                 t_matrix->data[i][j] = 1;
             }
         }
-        count++;
     }
 }
 

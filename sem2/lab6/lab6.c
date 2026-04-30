@@ -45,16 +45,16 @@ int main()
     print_matrix(&C, "Ceiled Matrix (c_ij = b_ij * 100 * a_ij)");
     print_matrix(&D, "D Matrix (d_ij = 1 if c_ij > 0 and 0 if c_ij = 0)");
     print_matrix(&H, "H Matrix (h_ij = 1 if d_ij != d_ji)");
-    print_matrix(&T, "Trianglular Upper Matrix");
+    print_matrix(&T, "Upper Trianglular Matrix");
     print_matrix(&W, "Weighted Graph Matrix");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");
     SetTargetFPS(60);
 
-    IMatrix *show_matrices[2] = {&A, &A};
-    bool show_is_dir[2] = {false, false};
-    const char *show_titles[2] = {"Undirected", "Undirected"};
+    IMatrix *show_matrices[1] = {&A};
+    bool show_is_dir[1] = {false};
+    const char *show_titles[1] = {"Undirected"};
 
     int curr = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
@@ -63,7 +63,7 @@ int main()
     {
         if (IsKeyPressed(KEY_SPACE))
         {
-            curr = (curr + 1) % 2;
+            curr = (curr + 1) % 1;
         }
 
         IMatrix *current_matrix = show_matrices[curr];
