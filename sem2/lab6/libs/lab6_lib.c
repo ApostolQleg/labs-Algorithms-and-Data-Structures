@@ -201,3 +201,102 @@ EdgeList convert_w_matrix(const IMatrix *w_matrix)
     }
     return list;
 }
+
+void split_list(Edge *source, Edge **front, Edge **back)
+{
+    Edge *fast;
+    Edge *slow;
+    slow = source;
+    fast = source->next;
+
+    while (fast != NULL)
+    {
+        fast = fast->next;
+        if (fast != NULL)
+        {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *front = source;
+    *back = slow->next;
+    slow->next = NULL;
+}
+
+Edge *sorted_merge(Edge *a, Edge *b)
+{
+    Edge *result = NULL;
+
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (a->weight <= b->weight)
+    {
+        result = a;
+        result->next = sorted_merge(a->next, b);
+    }
+    else
+    {
+        result = b;
+        result->next = sorted_merge(a, b->next);
+    }
+
+    return result;
+}
+
+void merge_sort_recursive(Edge **head_ref)
+{
+    Edge *head = *head_ref;
+    Edge *a;
+    Edge *b;
+
+    if ((head == NULL) || (head->next == NULL))
+    {
+        return;
+    }
+
+    split_list(head, &a, &b);
+
+    merge_sort_recursive(&a);
+    merge_sort_recursive(&b);
+
+    *head_ref = sorted_merge(a, b);
+}
+
+void sort_edge_list(EdgeList *list)
+{
+    if (list == NULL || list->head == NULL)
+        return;
+
+    merge_sort_recursive(&(list->head));
+}
+
+void print_edge_list(const EdgeList *list, const char *title)
+{
+    printf("\n%s:\n", title);
+
+    if (list == NULL || list->head == NULL)
+    {
+        printf("Edge list is empty.\n\n");
+        return;
+    }
+
+    Edge *current = list->head;
+    int count = 1;
+
+    while (current != NULL)
+    {
+        printf("%3d. Edge (%2d, %2d) | Weight: %d\n",
+               count,
+               current->start + 1,
+               current->end + 1,
+               current->weight);
+
+        current = current->next;
+        count++;
+    }
+    printf("There is %d edges\n\n", list->size);
+}

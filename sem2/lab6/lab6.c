@@ -49,6 +49,9 @@ int main()
     print_matrix(&W, "Weighted Graph Matrix");
 
     EdgeList edges = convert_w_matrix(&W);
+    print_edge_list(&edges, "Weighted Edges");
+    sort_edge_list(&edges);
+    print_edge_list(&edges, "Sorted Weighted Edges");
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");

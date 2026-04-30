@@ -40,6 +40,12 @@ void free_edge_list(EdgeList *list);
 void add_edge(EdgeList *list, int start, int end, int weight);
 EdgeList convert_w_matrix(const IMatrix *w_matrix);
 
+void split_list(Edge *source, Edge **front, Edge **back);
+Edge *sorted_merge(Edge *a, Edge *b);
+void merge_sort_recursive(Edge **head_ref);
+void sort_edge_list(EdgeList *list);
+void print_edge_list(const EdgeList *list, const char *title);
+
 void print_double_matrix(const DMatrix *matrix, const char *title);
 
 #endif
