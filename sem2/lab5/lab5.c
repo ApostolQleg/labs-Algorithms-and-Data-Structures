@@ -26,15 +26,18 @@ int main()
     generate_directed_matrix(A_dir, N, K);
     generate_undirected_matrix(A_dir, A_undir, N);
 
-    TraversalState bfs_state;
-    TraversalState dfs_state;
-    init_traversal_state(&bfs_state, N);
-    init_traversal_state(&dfs_state, N);
+    TraversalState bfs_states[2];
+    TraversalState dfs_states[2];
+    TraversalHistory bfs_histories[2];
+    TraversalHistory dfs_histories[2];
 
-    TraversalHistory bfs_history;
-    TraversalHistory dfs_history;
-    init_history(&bfs_history);
-    init_history(&dfs_history);
+    for (int i = 0; i < 2; i++)
+    {
+        init_traversal_state(&bfs_states[i], N);
+        init_traversal_state(&dfs_states[i], N);
+        init_history(&bfs_histories[i]);
+        init_history(&dfs_histories[i]);
+    }
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 5 - Graph Traversal (BFS and DFS)");
@@ -43,7 +46,7 @@ int main()
     int **show_matrices[2] = {A_dir, A_undir};
     int show_sizes[2] = {N, N};
     bool show_is_dir[2] = {true, false};
-    const char *show_titles[2] = {"Directed (K1)", "Undirected (K1)"};
+    const char *show_titles[2] = {"Directed", "Undirected"};
 
     const char *trav_titles[2] = {"BFS", "DFS"};
 
@@ -58,6 +61,11 @@ int main()
             curr = (curr + 1) % 2;
         }
 
+        TraversalState *current_bfs = &bfs_states[curr];
+        TraversalState *current_dfs = &dfs_states[curr];
+        TraversalHistory *current_bfs_hist = &bfs_histories[curr];
+        TraversalHistory *current_dfs_hist = &dfs_histories[curr];
+
         int current_n = show_sizes[curr];
         int **current_matrix = show_matrices[curr];
         bool is_dir = show_is_dir[curr];
@@ -69,15 +77,15 @@ int main()
 
         if (IsKeyPressed(KEY_UP))
         {
-            if (curr_trav == 0 && !bfs_state.is_finished)
+            if (curr_trav == 0 && !current_bfs->is_finished)
             {
-                save_state(&bfs_history, &bfs_state);
-                step_BFS(&bfs_state, current_matrix);
+                save_state(current_bfs_hist, current_bfs);
+                step_BFS(current_bfs, current_matrix);
             }
-            else if (curr_trav == 1 && !dfs_state.is_finished)
+            else if (curr_trav == 1 && !current_dfs->is_finished)
             {
-                save_state(&dfs_history, &dfs_state);
-                step_DFS(&dfs_state, current_matrix);
+                save_state(current_dfs_hist, current_dfs);
+                step_DFS(current_dfs, current_matrix);
             }
         }
 
@@ -85,11 +93,11 @@ int main()
         {
             if (curr_trav == 0)
             {
-                undo_state(&bfs_history, &bfs_state);
+                undo_state(current_bfs_hist, current_bfs);
             }
             else if (curr_trav == 1)
             {
-                undo_state(&dfs_history, &dfs_state);
+                undo_state(current_dfs_hist, current_dfs);
             }
         }
 
@@ -101,7 +109,7 @@ int main()
             current_nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
         }
 
-        TraversalState *current_state = (curr_trav == 0) ? &bfs_state : &dfs_state;
+        TraversalState *current_state = (curr_trav == 0) ? current_bfs : current_dfs;
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -122,11 +130,13 @@ int main()
     destroy_matrix(A_dir, N);
     destroy_matrix(A_undir, N);
 
-    free_traversal_state(&bfs_state);
-    free_traversal_state(&dfs_state);
-
-    free_history(&bfs_history);
-    free_history(&dfs_history);
+    for (int i = 0; i < 2; i++)
+    {
+        free_traversal_state(&bfs_states[i]);
+        free_traversal_state(&dfs_states[i]);
+        free_history(&bfs_histories[i]);
+        free_history(&dfs_histories[i]);
+    }
 
     return 0;
 }

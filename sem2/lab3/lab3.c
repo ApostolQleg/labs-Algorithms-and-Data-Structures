@@ -33,7 +33,7 @@ int main()
     int **show_matrices[2] = {A_dir, A_undir};
     int show_sizes[2] = {N, N};
     bool show_is_dir[2] = {true, false};
-    const char *show_titles[2] = {"Directed (K1)", "Undirected (K1)"};
+    const char *show_titles[2] = {"Directed", "Undirected"};
 
     int curr = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
