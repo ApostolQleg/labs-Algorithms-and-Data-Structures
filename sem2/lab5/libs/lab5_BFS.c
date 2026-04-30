@@ -48,6 +48,8 @@ void step_BFS(TraversalState *state, const IMatrix *matrix)
         {
             state->visited[next_start] = 1;
             state->queue_stack[state->tail++] = next_start;
+            
+            state->current_node = next_start;
         }
         else
         {
