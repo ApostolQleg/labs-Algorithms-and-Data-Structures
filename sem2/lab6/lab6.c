@@ -48,6 +48,8 @@ int main()
     print_matrix(&T, "Upper Trianglular Matrix");
     print_matrix(&W, "Weighted Graph Matrix");
 
+    EdgeList edges = convert_w_matrix(&W);
+
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 6 - Minimum Spanning Tree");
     SetTargetFPS(60);

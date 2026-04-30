@@ -148,3 +148,56 @@ void seed_W_matrix(IMatrix *w_matrix, const IMatrix *c_matrix, const IMatrix *d_
         }
     }
 }
+
+EdgeList init_edge_list()
+{
+    EdgeList list = {NULL, 0};
+    return list;
+}
+
+void add_edge(EdgeList *list, int start, int end, int weight)
+{
+    Edge *new_edge = (Edge *)malloc(sizeof(Edge));
+    if (new_edge == NULL)
+        return;
+
+    new_edge->start = start;
+    new_edge->end = end;
+    new_edge->weight = weight;
+
+    new_edge->next = list->head;
+    list->head = new_edge;
+
+    list->size++;
+}
+
+void free_edge_list(EdgeList *list)
+{
+    Edge *current = list->head;
+    while (current != NULL)
+    {
+        Edge *temp = current;
+        current = current->next;
+        free(temp);
+    }
+    list->head = NULL;
+    list->size = 0;
+}
+
+EdgeList convert_w_matrix(const IMatrix *w_matrix)
+{
+    EdgeList list = init_edge_list();
+    int n = w_matrix->N;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            if (w_matrix->data[i][j] > 0)
+            {
+                add_edge(&list, i, j, w_matrix->data[i][j]);
+            }
+        }
+    }
+    return list;
+}
