@@ -10,6 +10,20 @@ typedef struct
     int **data;
 } IMatrix;
 
+typedef struct Edge
+{
+    int start;
+    int end;
+    int weight;
+    struct Edge *next;
+} Edge;
+
+typedef struct
+{
+    Edge *head;
+    int size;
+} EdgeList;
+
 IMatrix init_imatrix(int n);
 void free_imatrix(IMatrix *matrix);
 
@@ -24,5 +38,11 @@ void print_matrix(const IMatrix *matrix, const char *title);
 void draw_arrow(Vector2 target, float angle, float arrow_length, Color color);
 void draw_graph(const IMatrix *matrix, Vector2 *nodes, float r_node, Vector2 center, bool is_directed);
 void draw_graph_traversal(const IMatrix *matrix, Vector2 *nodes, float r_node, Vector2 center, bool is_directed, int *visited, const IMatrix *tree_edges);
+
+EdgeList init_edge_list();
+void free_edge_list(EdgeList *list);
+void add_edge(EdgeList *list, int start, int end, int weight);
+
+void draw_weighted_edges(EdgeList *list, Vector2 *nodes, float r_node, Color edgeColor, Color textColor);
 
 #endif

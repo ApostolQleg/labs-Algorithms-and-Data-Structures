@@ -270,3 +270,94 @@ void draw_graph_traversal(const IMatrix *matrix, Vector2 *nodes, float r_node, V
         DrawText(text, textX, textY, fontSize, RAYWHITE);
     }
 }
+
+EdgeList init_edge_list()
+{
+    EdgeList list = {NULL, 0};
+    return list;
+}
+
+void add_edge(EdgeList *list, int start, int end, int weight)
+{
+    Edge *new_edge = (Edge *)malloc(sizeof(Edge));
+    if (new_edge == NULL)
+        return;
+
+    new_edge->start = start;
+    new_edge->end = end;
+    new_edge->weight = weight;
+
+    new_edge->next = list->head;
+    list->head = new_edge;
+
+    list->size++;
+}
+
+void free_edge_list(EdgeList *list)
+{
+    Edge *current = list->head;
+    while (current != NULL)
+    {
+        Edge *temp = current;
+        current = current->next;
+        free(temp);
+    }
+    list->head = NULL;
+    list->size = 0;
+}
+
+void print_edge_list(const EdgeList *list, const char *title)
+{
+    printf("\n%s:\n", title);
+
+    if (list == NULL || list->head == NULL)
+    {
+        printf("Edge list is empty.\n\n");
+        return;
+    }
+
+    Edge *current = list->head;
+    int count = 1;
+
+    while (current != NULL)
+    {
+        printf("%3d. Edge (%2d, %2d) | Weight: %d\n",
+               count,
+               current->start + 1,
+               current->end + 1,
+               current->weight);
+
+        current = current->next;
+        count++;
+    }
+    printf("There is %d edges\n\n", list->size);
+}
+
+void draw_weighted_edges(EdgeList *list, Vector2 *nodes, float r_node, Color edgeColor, Color textColor)
+{
+    if (list == NULL || list->head == NULL)
+        return;
+
+    Edge *current = list->head;
+    int fontSize = (int)(r_node * 0.7f);
+
+    while (current != NULL)
+    {
+        Vector2 start = nodes[current->start];
+        Vector2 end = nodes[current->end];
+
+        DrawLineEx(start, end, 3.0f, edgeColor);
+
+        Vector2 mid = {(start.x + end.x) / 2.0f, (start.y + end.y) / 2.0f};
+
+        char weight_text[10];
+        snprintf(weight_text, sizeof(weight_text), "%d", current->weight);
+
+        int textWidth = MeasureText(weight_text, fontSize);
+
+        DrawRectangle(mid.x - textWidth / 2 - 2, mid.y - fontSize / 2 - 2, textWidth + 4, fontSize + 4, Fade(RAYWHITE, 0.8f));
+        DrawText(weight_text, mid.x - textWidth / 2, mid.y - fontSize / 2, fontSize, textColor);
+
+        current = current->next;
+    }
+}
