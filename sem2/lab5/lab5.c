@@ -35,6 +35,7 @@ int main()
     init_traversal_state(&dfs_state, N);
 
     init_BFS(&bfs_state, A_dir);
+    init_DFS(&dfs_state, A_dir);
 
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
@@ -75,7 +76,7 @@ int main()
             }
             else if (curr_trav == 1 && !dfs_state.is_finished)
             {
-                // make dfs step
+                step_DFS(&dfs_state, current_matrix);
             }
         }
 
@@ -86,6 +87,8 @@ int main()
             current_nodes[i].x = center.x + GRAPH_RADIUS * cosf(angle);
             current_nodes[i].y = center.y + GRAPH_RADIUS * sinf(angle);
         }
+
+        TraversalState *current_state = (curr_trav == 0) ? &bfs_state : &dfs_state;
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
