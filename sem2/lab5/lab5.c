@@ -38,7 +38,7 @@ int main()
     init_DFS(&dfs_state, A_dir);
 
     SetTraceLogLevel(LOG_NONE);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 5 - Graph Traversal (BFS and DFS)");
     SetTargetFPS(60);
 
     int **show_matrices[2] = {A_dir, A_undir};
