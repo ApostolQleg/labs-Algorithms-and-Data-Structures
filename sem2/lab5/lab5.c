@@ -43,7 +43,10 @@ int main()
     bool show_is_dir[2] = {true, false};
     const char *show_titles[2] = {"Directed (K1)", "Undirected (K1)"};
 
+    const char *trav_titles[2] = {"BFS", "DFS"};
+
     int curr = 0;
+    int curr_trav = 0;
     Vector2 center = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
     while (!WindowShouldClose())
@@ -51,6 +54,22 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             curr = (curr + 1) % 2;
+        }
+
+        if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_LEFT))
+        {
+            curr_trav = (curr_trav + 1) % 2;
+        }
+        if (IsKeyPressed(KEY_UP))
+        {
+            if (curr_trav == 0 && !bfs_state.is_finished)
+            {
+                // make bfs step
+            }
+            else if (curr_trav == 1 && !dfs_state.is_finished)
+            {
+                // make dfs step
+            }
         }
 
         int current_n = show_sizes[curr];
@@ -71,7 +90,10 @@ int main()
         draw_graph(current_matrix, current_nodes, current_n, NODE_RADIUS, center, is_dir);
 
         const char *title = TextFormat("Showing: %s [Press 'SPACE' to switch]", show_titles[curr]);
+        const char *trav_mode = TextFormat("Current traversal mode: %s [Press 'RIGHT' or 'LEFT' to switch]", trav_titles[curr_trav]);
+
         DrawText(title, TEXT_SIZE, TEXT_SIZE, TEXT_SIZE, DARKGRAY);
+        DrawText(trav_mode, TEXT_SIZE, TEXT_SIZE * 3, TEXT_SIZE / 1.5, GRAY);
 
         EndDrawing();
     }
