@@ -34,6 +34,8 @@ int main()
     init_traversal_state(&bfs_state, N);
     init_traversal_state(&dfs_state, N);
 
+    init_BFS(&bfs_state, A_dir);
+
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 3 - Graphical Graph Representation");
     SetTargetFPS(60);
@@ -56,25 +58,26 @@ int main()
             curr = (curr + 1) % 2;
         }
 
+        int current_n = show_sizes[curr];
+        int **current_matrix = show_matrices[curr];
+        bool is_dir = show_is_dir[curr];
+
         if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_LEFT))
         {
             curr_trav = (curr_trav + 1) % 2;
         }
+
         if (IsKeyPressed(KEY_UP))
         {
             if (curr_trav == 0 && !bfs_state.is_finished)
             {
-                // make bfs step
+                step_BFS(&bfs_state, current_matrix);
             }
             else if (curr_trav == 1 && !dfs_state.is_finished)
             {
                 // make dfs step
             }
         }
-
-        int current_n = show_sizes[curr];
-        int **current_matrix = show_matrices[curr];
-        bool is_dir = show_is_dir[curr];
 
         Vector2 current_nodes[current_n];
         for (int i = 0; i < current_n; i++)
