@@ -140,78 +140,93 @@ void draw_graph_traversal(int **matrix, Vector2 *nodes, int n, float r_node, Vec
     float curvature = 15.0f;
     float hueStep = 360.0f / n;
 
-    for (int i = 0; i < n; i++)
+    for (int pass = 0; pass < 2; pass++)
     {
-        Color baseNodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
-
-        for (int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++)
         {
-            if (matrix[i][j] == 1)
+            Color baseNodeColor = ColorFromHSV(i * hueStep, 0.7f, 0.9f);
+
+            for (int j = 0; j < n; j++)
             {
-                if (!is_directed && j < i)
-                    continue;
-
-                Color edgeColor = baseNodeColor;
-                if (tree_edges != NULL && tree_edges[i][j] == 1)
+                if (matrix[i][j] == 1)
                 {
-                    edgeColor = BLACK;
-                }
+                    if (!is_directed && j < i)
+                        continue;
 
-                if (i != j)
-                {
-                    Vector2 start = nodes[i];
-                    Vector2 end = nodes[j];
-
-                    Vector2 mid = {(start.x + end.x) / 2, (start.y + end.y) / 2};
-                    float dx = end.x - start.x;
-                    float dy = end.y - start.y;
-                    float dist = sqrtf(dx * dx + dy * dy);
-
-                    Vector2 normal = {-dy / dist, dx / dist};
-
-                    float current_bend = is_directed ? curvature : 0.0f;
-                    Vector2 control = {
-                        mid.x + normal.x * current_bend,
-                        mid.y + normal.y * current_bend};
-
-                    DrawSplineSegmentBezierQuadratic(start, control, end, 2.0f, edgeColor);
-
-                    if (is_directed)
+                    bool is_tree_edge = false;
+                    if (tree_edges != NULL)
                     {
-                        float t = 1.0f;
-                        Vector2 target = end;
-
-                        while (t > 0.0f)
+                        is_tree_edge = (tree_edges[i][j] == 1);
+                        if (!is_directed && tree_edges[j][i] == 1)
                         {
-                            float q0 = (1.0f - t) * (1.0f - t);
-                            float q1 = 2.0f * t * (1.0f - t);
-                            float q2 = t * t;
-
-                            target.x = q0 * start.x + q1 * control.x + q2 * end.x;
-                            target.y = q0 * start.y + q1 * control.y + q2 * end.y;
-
-                            float dx_to_center = target.x - end.x;
-                            float dy_to_center = target.y - end.y;
-                            float distance = sqrtf(dx_to_center * dx_to_center + dy_to_center * dy_to_center);
-
-                            if (distance >= (r_node + node_padding))
-                            {
-                                break;
-                            }
-                            t -= 0.01f;
+                            is_tree_edge = true;
                         }
-
-                        Vector2 tangent = {
-                            2.0f * (1.0f - t) * (control.x - start.x) + 2.0f * t * (end.x - control.x),
-                            2.0f * (1.0f - t) * (control.y - start.y) + 2.0f * t * (end.y - control.y)};
-                        float angle = atan2f(tangent.y, tangent.x);
-
-                        draw_arrow(target, angle, arrow_length, edgeColor);
                     }
-                }
-                else
-                {
-                    draw_self_loop(nodes[i], center, r_node, is_directed, edgeColor);
+
+                    if (pass == 0 && is_tree_edge)
+                        continue;
+                    if (pass == 1 && !is_tree_edge)
+                        continue;
+
+                    Color edgeColor = is_tree_edge ? BLACK : baseNodeColor;
+                    float line_thickness = is_tree_edge ? 4.0f : 2.0f;
+
+                    if (i != j)
+                    {
+                        Vector2 start = nodes[i];
+                        Vector2 end = nodes[j];
+
+                        Vector2 mid = {(start.x + end.x) / 2, (start.y + end.y) / 2};
+                        float dx = end.x - start.x;
+                        float dy = end.y - start.y;
+                        float dist = sqrtf(dx * dx + dy * dy);
+
+                        Vector2 normal = {-dy / dist, dx / dist};
+
+                        float current_bend = is_directed ? curvature : 0.0f;
+                        Vector2 control = {
+                            mid.x + normal.x * current_bend,
+                            mid.y + normal.y * current_bend};
+
+                        DrawSplineSegmentBezierQuadratic(start, control, end, line_thickness, edgeColor);
+
+                        if (is_directed)
+                        {
+                            float t = 1.0f;
+                            Vector2 target = end;
+
+                            while (t > 0.0f)
+                            {
+                                float q0 = (1.0f - t) * (1.0f - t);
+                                float q1 = 2.0f * t * (1.0f - t);
+                                float q2 = t * t;
+
+                                target.x = q0 * start.x + q1 * control.x + q2 * end.x;
+                                target.y = q0 * start.y + q1 * control.y + q2 * end.y;
+
+                                float dx_to_center = target.x - end.x;
+                                float dy_to_center = target.y - end.y;
+                                float distance = sqrtf(dx_to_center * dx_to_center + dy_to_center * dy_to_center);
+
+                                if (distance >= (r_node + node_padding))
+                                {
+                                    break;
+                                }
+                                t -= 0.01f;
+                            }
+
+                            Vector2 tangent = {
+                                2.0f * (1.0f - t) * (control.x - start.x) + 2.0f * t * (end.x - control.x),
+                                2.0f * (1.0f - t) * (control.y - start.y) + 2.0f * t * (end.y - control.y)};
+                            float angle = atan2f(tangent.y, tangent.x);
+
+                            draw_arrow(target, angle, arrow_length, edgeColor);
+                        }
+                    }
+                    else
+                    {
+                        draw_self_loop(nodes[i], center, r_node, is_directed, edgeColor);
+                    }
                 }
             }
         }
